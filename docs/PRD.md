@@ -34,6 +34,10 @@ Create a task management system that feels rewarding to use daily, adapts to bot
 - Visualize my workflow with a Kanban board to see task status at a glance
 - Drag and drop tasks between priority quadrants or status columns for quick updates
 - Track my task flow from Ready → In Progress → Completed to identify bottlenecks
+- Create and save custom filtered views so I can quickly access my most important task lists
+- Filter tasks by any combination of tags, status, priority, dates, or other attributes
+- Switch between different view modes (list, kanban, matrix) for the same filtered tasks
+- Pin my frequently used views to the sidebar for instant access
 
 ## 5. Features & Requirements
 
@@ -660,7 +664,167 @@ On Drag to Column:
 - Board templates for different workflows
 - Per-board WIP limits and policies
 
-### 5.10 Task Completion Flow
+### 5.10 Saved Views
+
+**Purpose:**
+Allow users to create, save, and quickly access custom filtered views of their tasks with their preferred display mode and filter criteria.
+
+**Saved View Properties:**
+```
+Saved View
+├── Name: User-defined name (e.g., "Work Tasks", "High Priority", "This Week")
+├── Icon: Optional emoji or icon for visual identification
+├── View Mode: 'list' | 'kanban' | 'eisenhower' | 'today'
+├── Filters: JSON object containing filter criteria
+│   ├── tags: array of tag IDs (any task with these tags)
+│   ├── status: array of statuses (ready, in_progress, blocked, completed)
+│   ├── type: array of task types (task, habit, parent)
+│   ├── is_urgent: boolean | null
+│   ├── is_important: boolean | null
+│   ├── has_due_date: boolean | null
+│   ├── due_date_range: {start: date, end: date} | null
+│   ├── parent_id: UUID | null (show only subtasks of specific parent)
+│   └── search_text: string | null (filter by title/description)
+├── Sort Order: {field: string, direction: 'asc' | 'desc'}
+├── Display Options: View-specific settings
+│   ├── For Kanban: {wipLimit: number, showCompleted: boolean}
+│   ├── For List: {groupBy: string, showSubtasks: boolean}
+│   └── For Eisenhower: {quadrantLabels: object}
+├── Is Pinned: boolean (show in sidebar/navigation)
+└── Position: integer (order in sidebar)
+```
+
+**Default Saved Views:**
+```
+System provides default views (can be customized but not deleted):
+├── "All Tasks" - List view, no filters
+├── "Today" - Today dashboard view
+├── "Habits" - Habits view with calendar
+├── "Work" - Tasks tagged with "Work" (if tag exists)
+├── "Personal" - Tasks tagged with "Personal" (if tag exists)
+└── "This Week" - Tasks due within next 7 days
+```
+
+**Creating a Saved View:**
+```
+User Flow:
+├── User applies filters in any view (All Tasks, Kanban, etc.)
+├── User clicks "Save View" button
+├── Modal opens with:
+│   ├── View Name input (required)
+│   ├── Icon picker (optional)
+│   ├── Current filters displayed (editable)
+│   ├── Pin to sidebar checkbox
+│   └── Save button
+├── View is saved to database
+└── View appears in sidebar (if pinned) or "More Views" menu
+```
+
+**Accessing Saved Views:**
+```
+Navigation Options:
+├── Sidebar (Desktop):
+│   ├── Default views always visible
+│   ├── Pinned custom views below defaults
+│   ├── "More Views" expandable section for unpinned views
+│   └── "+ New View" action at bottom
+│
+├── Bottom Navigation (Mobile):
+│   ├── Core views (Today, Kanban, Matrix, etc.)
+│   └── "Views" icon → Opens view selector modal
+│
+└── Quick Switcher (Desktop):
+    ├── Keyboard shortcut: Cmd/Ctrl + K
+    ├── Fuzzy search through saved views
+    └── Quick switch between views
+```
+
+**Editing Saved Views:**
+```
+User Actions:
+├── Right-click saved view in sidebar → "Edit View"
+├── Or: Open view → Click "Edit View" in header
+├── Modal opens with all settings editable
+├── Changes save immediately
+└── Can rename, change icon, modify filters, adjust display options
+```
+
+**Managing Saved Views:**
+```
+View Management Interface:
+├── Access via Settings → "Manage Views"
+├── List of all saved views
+├── Actions per view:
+│   ├── Edit (opens edit modal)
+│   ├── Duplicate (creates copy with "Copy of X" name)
+│   ├── Pin/Unpin (toggle sidebar visibility)
+│   ├── Reorder (drag to change position)
+│   └── Delete (confirmation required, can't delete defaults)
+├── Drag to reorder views
+└── Bulk actions: Pin multiple, delete multiple
+```
+
+**Smart View Suggestions:**
+```
+Automatic Suggestions (optional enhancement):
+├── After user repeatedly applies same filter combination:
+│   └── "Save this filter as a view?" prompt appears
+│
+├── Based on tag usage patterns:
+│   └── Suggest creating views for frequently used tags
+│
+└── Based on time patterns:
+    └── Suggest creating "Morning Routine" if user always filters for specific tasks in AM
+```
+
+**Filter Criteria Details:**
+
+**Tag Filters:**
+- Multi-select: Show tasks with ANY of selected tags (OR logic)
+- Exclude mode: Show tasks WITHOUT selected tags
+- Hierarchical: Can filter by parent tag (includes all child tags)
+
+**Status Filters:**
+- Multi-select: Show tasks in any of selected statuses
+- Quick toggles: Active only, Completed only, All
+
+**Date Filters:**
+- Preset ranges: Today, This Week, This Month, Overdue
+- Custom range: Pick start and end dates
+- Relative dates: Next 3 days, Next 7 days, Next 30 days
+
+**Priority Filters (Eisenhower):**
+- Urgent only
+- Important only
+- Urgent & Important (Quadrant 1)
+- Specific quadrant filter
+
+**Advanced Filters:**
+- Has timer: boolean
+- Has subtasks: boolean
+- Is subtask: boolean
+- Completion count: >, <, = specific number
+- Created within: last X days
+- Not updated in: X days (stale tasks)
+
+**Examples of Useful Saved Views:**
+```
+Example Views:
+├── "Deep Work" - Important but not urgent tasks, Eisenhower view
+├── "Quick Wins" - Tasks with timer < 15 min, List view
+├── "Blocked Items" - Status = blocked, List view grouped by blocked reason
+├── "Habit Tracker" - Type = habit, Calendar view
+├── "Team Meetings" - Tagged "Meetings" + "Work", List view
+├── "Weekend Chores" - Tagged "Home", no due date, List view
+├── "Overdue Crisis" - Overdue + Urgent, List view sorted by due date
+└── "Personal Growth" - Tagged "Learning" OR "Health", Kanban view
+```
+
+**Data Sync & Sharing (Future Enhancement):**
+- Views sync across devices via Supabase
+- Export view configuration as JSON
+- Import shared view configurations
+- Community view templates (optional)
 
 #### Standard Task Completion
 ```
@@ -879,6 +1043,51 @@ User {
 Relationships:
 - User has_many Tasks
 - User has_many Tags
+- User has_many SavedViews
+```
+
+#### SavedView Entity
+```
+SavedView {
+  id: UUID
+  user_id: UUID (foreign key to User)
+  name: string (required, max 50 chars)
+  icon: string (nullable, emoji or icon identifier)
+  view_mode: enum ['list', 'kanban', 'eisenhower', 'today', 'habits']
+  filters: JSON (required)
+    // Structure: {
+    //   tags: UUID[],
+    //   status: string[],
+    //   type: string[],
+    //   is_urgent: boolean | null,
+    //   is_important: boolean | null,
+    //   has_due_date: boolean | null,
+    //   due_date_range: {start: timestamp, end: timestamp} | null,
+    //   parent_id: UUID | null,
+    //   search_text: string | null,
+    //   has_timer: boolean | null,
+    //   has_subtasks: boolean | null,
+    //   is_subtask: boolean | null,
+    //   completion_count_filter: {operator: '>' | '<' | '=', value: number} | null,
+    //   created_within_days: number | null,
+    //   not_updated_in_days: number | null
+    // }
+  sort_order: JSON (required)
+    // Structure: {field: string, direction: 'asc' | 'desc'}
+  display_options: JSON (nullable)
+    // Structure varies by view_mode:
+    // Kanban: {wipLimit: number | null, showCompleted: boolean}
+    // List: {groupBy: string | null, showSubtasks: boolean}
+    // Eisenhower: {quadrantLabels: {q1: string, q2: string, q3: string, q4: string}}
+  is_pinned: boolean (default true)
+  is_default: boolean (default false, system views only)
+  position: integer (for ordering in sidebar, default 0)
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+Relationships:
+- SavedView belongs_to User
 ```
 
 ### 6.2 Data Relationships Diagram
@@ -890,8 +1099,9 @@ User
 │   ├── TaskTags → Tags (many:many)
 │   ├── Recurrence (1:1, optional)
 │   └── Completions (1:many)
-└── Tags (1:many)
-    └── Parent/Child Tags (self-referential)
+├── Tags (1:many)
+│   └── Parent/Child Tags (self-referential)
+└── SavedViews (1:many)
 ```
 
 ### 6.3 Key Queries & Computed Values
@@ -1144,25 +1354,166 @@ Celebration Moments:
 └── New longest streak: Extra special celebration
 ```
 
+#### Saved View Component
+
+**Sidebar View List Item:**
+```
+Visual Elements:
+├── Icon (emoji or icon, optional)
+├── Name (truncated if long)
+├── Count Badge (number of tasks in view, optional)
+├── Active State (highlighted if current view)
+└── Drag Handle (for reordering)
+
+Interactions:
+├── Click: Switch to this view
+├── Right-click: Context menu (Edit, Duplicate, Delete, Pin/Unpin)
+├── Drag: Reorder in sidebar
+└── Hover: Show full name tooltip if truncated
+
+States:
+├── Default
+├── Active (currently viewing)
+├── Hover
+└── Dragging
+```
+
+**View Creation/Edit Modal:**
+```
+Layout:
+├── Header: "Create View" or "Edit View"
+├── Body:
+│   ├── Name Input (required)
+│   ├── Icon Picker (emoji selector)
+│   ├── View Mode Selector (List | Kanban | Eisenhower | Today)
+│   ├── Filters Section (collapsible accordion)
+│   │   ├── Tags (multi-select with hierarchy)
+│   │   ├── Status (multi-select checkboxes)
+│   │   ├── Type (task, habit, parent)
+│   │   ├── Priority (urgent/important toggles)
+│   │   ├── Date Range (preset or custom)
+│   │   ├── Advanced (has timer, has subtasks, etc.)
+│   │   └── Active filter count indicator
+│   ├── Sort Order Section
+│   │   ├── Sort by dropdown (due date, created, updated, title)
+│   │   └── Direction toggle (asc/desc)
+│   ├── Display Options Section (varies by view mode)
+│   │   └── View-specific settings
+│   └── Pin to Sidebar (checkbox)
+├── Footer:
+│   ├── Preview button (shows filtered tasks count)
+│   ├── Cancel
+│   └── Save View (primary button)
+└── Delete button (if editing, destructive styling)
+```
+
+**Quick View Switcher (Cmd/Ctrl+K):**
+```
+Modal Overlay:
+├── Search Input (fuzzy search view names)
+├── Results List
+│   ├── Pinned Views section
+│   ├── All Views section
+│   └── Each item shows: Icon, Name, Task count
+├── Keyboard Navigation
+│   ├── Up/Down arrows to navigate
+│   ├── Enter to select
+│   └── Esc to close
+└── Recent Views (last 5 accessed)
+```
+
+**Filter Bar Component:**
+```
+Persistent Filter Bar (top of all views):
+├── Active Filters Display
+│   ├── Shows applied filter chips
+│   ├── Each chip: "Tag: Work" with X to remove
+│   └── "Clear All" button if multiple filters
+├── Add Filter Dropdown
+│   ├── Quick filters (Today, This Week, Overdue)
+│   ├── Filter by Tag
+│   ├── Filter by Status
+│   ├── Filter by Priority
+│   └── Advanced Filters submenu
+├── Save View Button (if filters applied)
+│   └── Quick save current filter combination
+└── View Options Dropdown
+    ├── Group by...
+    ├── Sort by...
+    └── Display density
+```
+
 ### 7.3 Page Layouts
 
-#### Today Dashboard Layout
-```
-Desktop (1200px+):
-├── Header: Title "Today" + Date + Quick Add Button
-├── Main Content (single column, max-width 800px, centered)
-│   ├── Overdue Section (if any)
-│   ├── Habits Section
-│   ├── Tasks Section
-│   └── Suggested Tasks Section
-└── Sidebar (optional): Week calendar preview, stats summary
+#### Application Layout with Saved Views
 
-Mobile (<768px):
-├── Header: Compact title + Quick Add
+**Desktop (1200px+):**
+```
+Overall Layout:
+├── Sidebar (Left, 240-280px)
+│   ├── App Logo/Title
+│   ├── Quick Add Button
+│   ├── Default Views Section
+│   │   ├── Today (icon + name)
+│   │   ├── All Tasks
+│   │   ├── Habits
+│   │   ├── Kanban Board
+│   │   └── Priority Matrix
+│   ├── Divider
+│   ├── Pinned Views Section
+│   │   ├── "My Views" header
+│   │   ├── Pinned view 1 (draggable)
+│   │   ├── Pinned view 2 (draggable)
+│   │   └── ... (sorted by position)
+│   ├── More Views (collapsible)
+│   │   └── Unpinned views list
+│   ├── "+ New View" button
+│   ├── Divider
+│   └── Settings (bottom)
+│
+├── Main Content Area
+│   ├── Filter Bar (if applicable)
+│   │   ├── Active filters display
+│   │   ├── Add filter dropdown
+│   │   └── Save view button
+│   ├── View Header
+│   │   ├── View name + icon
+│   │   ├── View actions (Edit, Duplicate, Delete)
+│   │   └── View mode toggle (if not locked)
+│   └── Content (varies by view type)
+│       ├── Today Dashboard
+│       ├── List View
+│       ├── Kanban Board
+│       ├── Eisenhower Matrix
+│       └── Habits View
+│
+└── Keyboard Shortcut Overlay (Cmd/Ctrl+K)
+    └── Quick view switcher modal
+```
+
+**Mobile (<768px):**
+```
+Layout:
+├── Top Bar
+│   ├── Menu icon (opens drawer with views)
+│   ├── Current view name
+│   └── Quick Add button
+│
 ├── Main Content (full width)
-│   ├── Sections stack vertically
-│   └── Cards full-width with padding
-└── Bottom Navigation: Today | All Tasks | Matrix | Kanban | Habits | Settings
+│   ├── Filter bar (if active filters)
+│   └── View content
+│
+├── Navigation Drawer (slide from left)
+│   ├── Default views list
+│   ├── My Views section
+│   ├── "+ New View" button
+│   └── Settings
+│
+└── Bottom Navigation (optional)
+    ├── Today
+    ├── Views (opens view selector)
+    ├── Quick Add
+    └── Settings
 ```
 
 #### All Tasks Layout
@@ -1543,6 +1894,24 @@ TagStore:
     ├── updateTag(id: string, updates: Partial<Tag>)
     └── deleteTag(id: string)
 
+SavedViewStore:
+├── State:
+│   ├── views: SavedView[]
+│   ├── activeViewId: string | null (currently displayed view)
+│   ├── loading: boolean
+│   └── error: string | null
+│
+└── Actions:
+    ├── fetchViews()
+    ├── createView(view: Partial<SavedView>)
+    ├── updateView(id: string, updates: Partial<SavedView>)
+    ├── deleteView(id: string)
+    ├── duplicateView(id: string)
+    ├── setActiveView(id: string)
+    ├── reorderViews(viewIds: string[])
+    ├── pinView(id: string, isPinned: boolean)
+    └── initializeDefaultViews() (creates system defaults on first use)
+
 UIStore (app-level UI state):
 ├── State:
 │   ├── theme: 'light' | 'dark' | 'system'
@@ -1587,8 +1956,14 @@ Selectors (computed values, memoized):
 │   └── Quadrant 4: is_urgent=false, is_important=false
 ├── getUnclassifiedTasks(): Task[]
 │   └── Tasks where is_urgent or is_important are null/default
-└── getKanbanColumn(status: TaskStatus): Task[]
-    └── Returns tasks filtered by status for kanban columns
+├── getKanbanColumn(status: TaskStatus): Task[]
+│   └── Returns tasks filtered by status for kanban columns
+├── getTasksForView(viewId: string): Task[]
+│   └── Applies all filters from saved view to return matching tasks
+├── getPinnedViews(): SavedView[]
+│   └── Returns views where is_pinned = true, sorted by position
+└── getDefaultViews(): SavedView[]
+    └── Returns views where is_default = true
 ```
 
 ### 10.3 Data Flow
@@ -1781,6 +2156,10 @@ On Subtask Completion:
 - ✅ Someday tasks appear on dashboard after threshold
 - ✅ Pomodoro timer counts down and completes successfully
 - ✅ Today dashboard shows relevant tasks in correct priority order
+- ✅ Saved views can be created with custom filters and view modes
+- ✅ Filters work correctly for all task attributes (tags, status, priority, dates)
+- ✅ View switcher (Cmd/Ctrl+K) allows quick navigation between views
+- ✅ Pinned views appear in sidebar and can be reordered
 
 ### 12.2 User Experience
 - ✅ App feels delightful to use daily
@@ -1819,12 +2198,15 @@ On Subtask Completion:
 - Task attachments (files, images)
 - Task comments/notes over time
 - Collaboration (shared tasks with others)
+- Shared saved views between users
 - Calendar view (month/week view of tasks)
 - Natural language input ("Remind me to call mom next Tuesday")
 - Task templates for repeated complex projects
-- Advanced filtering (boolean logic, saved filters)
-- Keyboard shortcuts for power users
-- Drag and drop task reordering
+- Boolean logic in filters (AND/OR combinations)
+- Smart view suggestions based on usage patterns
+- Community view templates (import/export)
+- Keyboard shortcuts for power users (beyond Cmd+K)
+- Drag and drop task reordering within lists
 - Task dependencies ("Task B can't start until Task A is done")
 - Time tracking (total time spent on task)
 - Integrations (Google Calendar, email, etc.)
@@ -1901,6 +2283,9 @@ On Subtask Completion:
 - Today dashboard with smart filtering
 - Eisenhower Matrix for priority-based task organization
 - Kanban Board for visual workflow management
+- Saved Views with custom filters and view modes
+- Advanced filtering by any task attribute
+- Quick view switcher (Cmd/Ctrl+K)
 - Drag and drop for quick task updates
 - Notifications for due tasks and grace periods
 
@@ -1952,7 +2337,10 @@ On Subtask Completion:
 - Edge Functions for scheduled jobs
 - Eisenhower Matrix view implementation
 - Kanban Board view implementation
-- Drag and drop functionality for both views
+- Saved Views system (create, edit, delete, pin)
+- Advanced filtering UI for all views
+- Drag and drop functionality for views and tasks
+- Quick view switcher (Cmd/Ctrl+K)
 - Dark mode implementation
 - Mobile responsive design
 - Accessibility audit and fixes
