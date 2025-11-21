@@ -30,6 +30,10 @@ Create a task management system that feels rewarding to use daily, adapts to bot
 - Get gentle reminders about maintenance tasks that don't have specific due dates
 - Time-box certain tasks with a countdown timer to help me get started
 - Feel accomplished and motivated by visual progress indicators and celebrations
+- Prioritize tasks using the Eisenhower Matrix to focus on what's important vs urgent
+- Visualize my workflow with a Kanban board to see task status at a glance
+- Drag and drop tasks between priority quadrants or status columns for quick updates
+- Track my task flow from Ready → In Progress → Completed to identify bottlenecks
 
 ## 5. Features & Requirements
 
@@ -478,6 +482,184 @@ Habits View
     └── This Week's Completion Rate
 ```
 
+#### Eisenhower Matrix View
+
+**2x2 Priority Matrix Display:**
+```
+Eisenhower Matrix View
+├── Grid Layout (2x2 quadrants)
+│   ├── Quadrant 1: Urgent & Important (top-left)
+│   │   ├── Visual: Red/orange accent, high priority styling
+│   │   ├── Label: "Do First" or "Crisis/Deadlines"
+│   │   ├── Shows: Tasks where is_urgent = true AND is_important = true
+│   │   └── Sorted: By due date (earliest first)
+│   │
+│   ├── Quadrant 2: Not Urgent & Important (top-right)
+│   │   ├── Visual: Blue/purple accent, focus styling
+│   │   ├── Label: "Schedule" or "Goals/Planning"
+│   │   ├── Shows: Tasks where is_urgent = false AND is_important = true
+│   │   └── Sorted: By due date, then created date
+│   │
+│   ├── Quadrant 3: Urgent & Not Important (bottom-left)
+│   │   ├── Visual: Yellow/amber accent, delegate styling
+│   │   ├── Label: "Delegate" or "Interruptions"
+│   │   ├── Shows: Tasks where is_urgent = true AND is_important = false
+│   │   └── Sorted: By due date
+│   │
+│   └── Quadrant 4: Not Urgent & Not Important (bottom-right)
+│       ├── Visual: Gray/muted accent, low priority styling
+│       ├── Label: "Delete/Defer" or "Distractions"
+│       ├── Shows: Tasks where is_urgent = false AND is_important = false
+│       └── Sorted: By created date
+│
+├── Task Cards within Quadrants
+│   ├── Compact card design (smaller than dashboard cards)
+│   ├── Shows: Title, tags, due date (if any)
+│   ├── Click to complete or open details
+│   └── Drag to move between quadrants (updates is_urgent/is_important)
+│
+├── Unclassified Tasks Section (optional, collapsible)
+│   ├── Shows: Tasks where both is_urgent and is_important are default/null
+│   ├── Prompt: "Classify these tasks to add them to the matrix"
+│   └── Quick classification controls on hover
+│
+└── View Controls
+    ├── Filter: Show all | Active only | Overdue only
+    ├── Hide completed tasks toggle
+    └── Settings: Customize quadrant labels
+```
+
+**Classification Logic:**
+```
+Task Classification:
+├── Manual Classification:
+│   ├── Task detail modal includes "Priority" section
+│   ├── Urgent checkbox: "Is this task urgent?"
+│   ├── Important checkbox: "Is this task important?"
+│   └── Helper text explains each dimension
+│
+├── Quick Classification (from matrix view):
+│   ├── Drag task between quadrants
+│   ├── Automatically updates is_urgent and is_important flags
+│   └── Visual feedback during drag
+│
+└── Automatic Suggestions (optional enhancement):
+    ├── Tasks due today or overdue: Suggest marking as urgent
+    ├── Tasks with habit type: Suggest marking as important
+    └── User can accept/reject suggestions
+```
+
+**Quadrant Descriptions:**
+- **Quadrant 1 (Urgent & Important)**: Critical tasks requiring immediate attention. Crises, deadlines, problems.
+- **Quadrant 2 (Not Urgent & Important)**: Strategic tasks for long-term success. Planning, relationship building, learning.
+- **Quadrant 3 (Urgent & Not Important)**: Tasks that demand attention but don't contribute to priorities. Interruptions, some calls/emails.
+- **Quadrant 4 (Not Urgent & Not Important)**: Time-wasters and distractions. Trivial tasks, busy work.
+
+#### Kanban Board View
+
+**Column-Based Task Flow Display:**
+```
+Kanban Board View
+├── Board Columns (horizontal scroll on mobile)
+│   ├── Column 1: Ready
+│   │   ├── Header: "Ready" + count badge
+│   │   ├── Shows: Tasks where status = 'ready'
+│   │   ├── Visual: Default/neutral styling
+│   │   └── Sorted: By due date, then created date
+│   │
+│   ├── Column 2: In Progress
+│   │   ├── Header: "In Progress" + count badge
+│   │   ├── Shows: Tasks where status = 'in_progress'
+│   │   ├── Visual: Blue accent, active indicator
+│   │   └── Sorted: By started_at (most recent first)
+│   │
+│   ├── Column 3: Blocked
+│   │   ├── Header: "Blocked" + count badge
+│   │   ├── Shows: Tasks where status = 'blocked'
+│   │   ├── Visual: Orange/red accent, warning indicator
+│   │   ├── Displays blocked_reason in card
+│   │   └── Sorted: By updated date
+│   │
+│   └── Column 4: Completed
+│       ├── Header: "Completed" + count badge (last 7 days)
+│       ├── Shows: Tasks completed in last 7 days
+│       ├── Visual: Green checkmark, muted/faded
+│       ├── Sorted: By completion date (most recent first)
+│       └── "Show all completed" button to expand
+│
+├── Task Cards in Columns
+│   ├── Vertical stacking within column
+│   ├── Card design: Compact with essential info
+│   ├── Shows: Title, tags (max 2), due date indicator
+│   ├── Parent tasks show subtask count badge
+│   ├── Habits show streak indicator
+│   └── Timer tasks show play button
+│
+├── Drag and Drop
+│   ├── Drag task between columns to change status
+│   ├── Dropping in "Blocked" prompts for blocked reason
+│   ├── Dropping in "Completed" triggers completion flow
+│   ├── Visual feedback: Column highlights on drag over
+│   └── Optimistic update with revert on error
+│
+├── Column Limits (optional, configurable)
+│   ├── WIP (Work In Progress) limit for "In Progress" column
+│   ├── Visual warning when limit exceeded
+│   ├── Default: No limit (can be enabled in settings)
+│   └── Purpose: Encourages focus, prevents overload
+│
+├── Filtering & Grouping
+│   ├── Filter by tag (shows only matching tasks)
+│   ├── Filter by due date range
+│   ├── Group by parent task (shows subtasks nested)
+│   └── Show/hide archived tasks toggle
+│
+└── View Controls
+    ├── Compact/Comfortable card density toggle
+    ├── Column visibility settings (hide/show columns)
+    ├── Sort order within columns (configurable)
+    └── Board settings (WIP limits, completed task retention)
+```
+
+**Kanban Interactions:**
+```
+Desktop Interactions:
+├── Drag and drop between columns
+├── Click card to open detail modal
+├── Right-click for context menu
+├── Double-click to mark in progress (if in Ready)
+└── Hover shows full card details (tooltip)
+
+Mobile Interactions:
+├── Horizontal swipe to navigate between columns
+├── Long press on card to drag
+├── Tap card to open detail modal
+├── Swipe card left/right to quick change status
+└── Pull down to refresh board
+```
+
+**Status Transition Validations:**
+```
+On Drag to Column:
+├── Ready → In Progress: Valid, sets started_at timestamp
+├── Ready → Blocked: Valid, prompts for blocked_reason
+├── Ready → Completed: Valid, triggers completion flow
+├── In Progress → Ready: Valid, clears started_at
+├── In Progress → Blocked: Valid, prompts for blocked_reason
+├── In Progress → Completed: Valid, triggers completion flow
+├── Blocked → Ready: Valid, clears blocked_reason
+├── Blocked → In Progress: Valid, clears blocked_reason, sets started_at
+├── Blocked → Completed: Valid, triggers completion flow
+└── Completed → Any: Invalid, must "reopen" task first (separate action)
+```
+
+**Board Customization (Future Enhancement):**
+- Multiple custom boards with saved filters
+- Custom column definitions beyond status
+- Swimlanes for grouping (by tag, by parent, by priority)
+- Board templates for different workflows
+- Per-board WIP limits and policies
+
 ### 5.10 Task Completion Flow
 
 #### Standard Task Completion
@@ -590,7 +772,11 @@ Task {
   streak_safe_until: timestamp (nullable)
   target_frequency: JSON (nullable)
     // Structure: {count: number, period: 'day'|'week'|'month'}
-  
+
+  // Eisenhower Matrix classification
+  is_urgent: boolean (default false)
+  is_important: boolean (default false)
+
   // Metadata
   created_at: timestamp
   updated_at: timestamp
@@ -875,6 +1061,10 @@ Actions:
 │   ├── Mark as In Progress
 │   ├── Mark as Blocked → Opens dialog for blocked reason
 │   └── Mark as Complete
+├── Priority Actions:
+│   ├── Mark as Urgent
+│   ├── Mark as Important
+│   └── Clear Priority (removes urgent/important flags)
 ├── Move to Tomorrow
 ├── Move Forward X Days → Opens dialog
 ├── Remove Due Date
@@ -972,7 +1162,7 @@ Mobile (<768px):
 ├── Main Content (full width)
 │   ├── Sections stack vertically
 │   └── Cards full-width with padding
-└── Bottom Navigation: Dashboard | All Tasks | Habits | Settings
+└── Bottom Navigation: Today | All Tasks | Matrix | Kanban | Habits | Settings
 ```
 
 #### All Tasks Layout
@@ -1010,13 +1200,74 @@ Mobile:
 └── Swipe between tabs gesture
 ```
 
+#### Eisenhower Matrix Layout
+```
+Desktop (1200px+):
+├── Header: Title "Priority Matrix" + View Controls
+│   ├── Filter dropdown (All | Active | Overdue)
+│   └── Settings icon (customize labels)
+├── Main Content: 2x2 Grid (equal quadrants)
+│   ├── Grid spacing: 16px gap between quadrants
+│   ├── Each quadrant: Rounded corners, distinct background color
+│   ├── Quadrant header: Label + task count + color accent
+│   └── Task cards: Vertical stack, scrollable if overflow
+├── Unclassified Section (below matrix, collapsible)
+│   └── Horizontal list of unclassified tasks
+└── Drag overlay: Visual feedback during drag operations
+
+Mobile (<768px):
+├── Header: Title "Priority Matrix" + Filter icon
+├── Tab Navigation: Q1 | Q2 | Q3 | Q4 | Unclassified
+├── Content: Current quadrant tasks (full width)
+│   └── Swipe left/right to switch quadrants
+└── Floating Action Button: Quick classify (bottom-right)
+```
+
+#### Kanban Board Layout
+```
+Desktop (1200px+):
+├── Header: Title "Kanban Board" + Controls
+│   ├── View controls: Compact/Comfortable toggle
+│   ├── Filter icon: Opens filter sidebar
+│   └── Settings: Column visibility, WIP limits
+├── Main Content: Horizontal columns (4+ visible)
+│   ├── Column width: 280-320px fixed
+│   ├── Horizontal scroll if more columns than fit
+│   ├── Each column: Header + task list
+│   │   ├── Header: Fixed at top during scroll
+│   │   ├── Task cards: Vertical stack
+│   │   └── Column footer: "Add task" button
+│   └── Visual: Columns separated by subtle borders
+├── Filter Sidebar (optional, toggleable)
+│   ├── Tag filters (multi-select)
+│   ├── Date range picker
+│   └── Group by options
+└── Drag indicators: Column highlights, drop zones
+
+Mobile (<768px):
+├── Header: Title "Board" + Filter icon
+├── Column Tabs: Ready | In Progress | Blocked | Done
+│   └── Horizontal scroll for all columns
+├── Content: Single column view (swipe to switch)
+│   ├── Column header with count badge
+│   └── Task cards (full width)
+├── Bottom Sheet: Swipe up for filters
+└── Card Actions: Swipe gesture for status change
+```
+
 #### Task Detail Modal
 ```
 Layout (Overlay, centered):
 ├── Header: Close button + Task title (editable)
 ├── Body (scrollable):
 │   ├── Description field (expandable textarea)
+│   ├── Status Selector (Ready | In Progress | Blocked | Completed)
+│   │   └── If Blocked: Show blocked_reason textarea
 │   ├── Due Date Picker
+│   ├── Priority Section (Eisenhower Matrix)
+│   │   ├── Urgent checkbox with helper text
+│   │   ├── Important checkbox with helper text
+│   │   └── Shows current quadrant based on selections
 │   ├── Tag Selector (multi-select with hierarchy)
 │   ├── Timer Duration Input (if applicable)
 │   ├── Parent Task Selector (if subtask)
@@ -1140,9 +1391,13 @@ User Preferences (stored in users table):
 │   ├── quiet_hours_end: string (HH:MM)
 │   └── grace_reminder_interval: number (1, 3, or 6 hours)
 └── Display Preferences:
-    ├── default_view: 'dashboard' | 'all_tasks' | 'habits'
+    ├── default_view: 'today' | 'all_tasks' | 'habits' | 'eisenhower' | 'kanban'
     ├── show_completed_tasks: boolean
-    └── compact_view: boolean
+    ├── compact_view: boolean
+    ├── eisenhower_quadrant_labels: JSON (nullable)
+    │   // Structure: {q1: string, q2: string, q3: string, q4: string}
+    │   // Default: {q1: "Do First", q2: "Schedule", q3: "Delegate", q4: "Delete"}
+    └── kanban_wip_limit: integer (nullable, default: null for no limit)
 ```
 
 ## 9. Notifications System
@@ -1293,12 +1548,16 @@ UIStore (app-level UI state):
 │   ├── theme: 'light' | 'dark' | 'system'
 │   ├── selectedTask: string | null (for detail modal)
 │   ├── showCompletedTasks: boolean
-│   └── sidebarCollapsed: boolean
+│   ├── sidebarCollapsed: boolean
+│   ├── currentView: 'today' | 'all_tasks' | 'habits' | 'eisenhower' | 'kanban'
+│   └── kanbanSettings: { wipLimit: number | null, showCompleted: boolean }
 │
 └── Actions:
     ├── toggleTheme()
     ├── selectTask(id: string | null)
-    └── toggleSidebar()
+    ├── toggleSidebar()
+    ├── setView(view: ViewType)
+    └── updateKanbanSettings(settings: KanbanSettings)
 
 AuthStore:
 ├── State:
@@ -1320,7 +1579,16 @@ Selectors (computed values, memoized):
 ├── getTasksByTag(tagId: string): Task[]
 ├── getSubtasks(parentId: string): Task[]
 ├── getTaskProgress(parentId: string): ProgressData
-└── getHabitStats(): HabitStatistics
+├── getHabitStats(): HabitStatistics
+├── getEisenhowerQuadrant(quadrant: 1|2|3|4): Task[]
+│   ├── Quadrant 1: is_urgent=true, is_important=true
+│   ├── Quadrant 2: is_urgent=false, is_important=true
+│   ├── Quadrant 3: is_urgent=true, is_important=false
+│   └── Quadrant 4: is_urgent=false, is_important=false
+├── getUnclassifiedTasks(): Task[]
+│   └── Tasks where is_urgent or is_important are null/default
+└── getKanbanColumn(status: TaskStatus): Task[]
+    └── Returns tasks filtered by status for kanban columns
 ```
 
 ### 10.3 Data Flow
@@ -1631,6 +1899,9 @@ On Subtask Completion:
 - Pomodoro-style timers
 - Quick reschedule (tomorrow, X days)
 - Today dashboard with smart filtering
+- Eisenhower Matrix for priority-based task organization
+- Kanban Board for visual workflow management
+- Drag and drop for quick task updates
 - Notifications for due tasks and grace periods
 
 **Visual Design:**
@@ -1679,6 +1950,9 @@ On Subtask Completion:
 - Pomodoro timer integration
 - Notification system (all types)
 - Edge Functions for scheduled jobs
+- Eisenhower Matrix view implementation
+- Kanban Board view implementation
+- Drag and drop functionality for both views
 - Dark mode implementation
 - Mobile responsive design
 - Accessibility audit and fixes
