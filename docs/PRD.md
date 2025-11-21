@@ -30,6 +30,14 @@ Create a task management system that feels rewarding to use daily, adapts to bot
 - Get gentle reminders about maintenance tasks that don't have specific due dates
 - Time-box certain tasks with a countdown timer to help me get started
 - Feel accomplished and motivated by visual progress indicators and celebrations
+- Prioritize tasks using the Eisenhower Matrix to focus on what's important vs urgent
+- Visualize my workflow with a Kanban board to see task status at a glance
+- Drag and drop tasks between priority quadrants or status columns for quick updates
+- Track my task flow from Ready → In Progress → Completed to identify bottlenecks
+- Create and save custom filtered views so I can quickly access my most important task lists
+- Filter tasks by any combination of tags, status, priority, dates, or other attributes
+- Switch between different view modes (list, kanban, matrix) for the same filtered tasks
+- Pin my frequently used views to the sidebar for instant access
 
 ## 5. Features & Requirements
 
@@ -478,7 +486,345 @@ Habits View
     └── This Week's Completion Rate
 ```
 
-### 5.10 Task Completion Flow
+#### Eisenhower Matrix View
+
+**2x2 Priority Matrix Display:**
+```
+Eisenhower Matrix View
+├── Grid Layout (2x2 quadrants)
+│   ├── Quadrant 1: Urgent & Important (top-left)
+│   │   ├── Visual: Red/orange accent, high priority styling
+│   │   ├── Label: "Do First" or "Crisis/Deadlines"
+│   │   ├── Shows: Tasks where is_urgent = true AND is_important = true
+│   │   └── Sorted: By due date (earliest first)
+│   │
+│   ├── Quadrant 2: Not Urgent & Important (top-right)
+│   │   ├── Visual: Blue/purple accent, focus styling
+│   │   ├── Label: "Schedule" or "Goals/Planning"
+│   │   ├── Shows: Tasks where is_urgent = false AND is_important = true
+│   │   └── Sorted: By due date, then created date
+│   │
+│   ├── Quadrant 3: Urgent & Not Important (bottom-left)
+│   │   ├── Visual: Yellow/amber accent, delegate styling
+│   │   ├── Label: "Delegate" or "Interruptions"
+│   │   ├── Shows: Tasks where is_urgent = true AND is_important = false
+│   │   └── Sorted: By due date
+│   │
+│   └── Quadrant 4: Not Urgent & Not Important (bottom-right)
+│       ├── Visual: Gray/muted accent, low priority styling
+│       ├── Label: "Delete/Defer" or "Distractions"
+│       ├── Shows: Tasks where is_urgent = false AND is_important = false
+│       └── Sorted: By created date
+│
+├── Task Cards within Quadrants
+│   ├── Compact card design (smaller than dashboard cards)
+│   ├── Shows: Title, tags, due date (if any)
+│   ├── Click to complete or open details
+│   └── Drag to move between quadrants (updates is_urgent/is_important)
+│
+├── Unclassified Tasks Section (optional, collapsible)
+│   ├── Shows: Tasks where both is_urgent and is_important are default/null
+│   ├── Prompt: "Classify these tasks to add them to the matrix"
+│   └── Quick classification controls on hover
+│
+└── View Controls
+    ├── Filter: Show all | Active only | Overdue only
+    ├── Hide completed tasks toggle
+    └── Settings: Customize quadrant labels
+```
+
+**Classification Logic:**
+```
+Task Classification:
+├── Manual Classification:
+│   ├── Task detail modal includes "Priority" section
+│   ├── Urgent checkbox: "Is this task urgent?"
+│   ├── Important checkbox: "Is this task important?"
+│   └── Helper text explains each dimension
+│
+├── Quick Classification (from matrix view):
+│   ├── Drag task between quadrants
+│   ├── Automatically updates is_urgent and is_important flags
+│   └── Visual feedback during drag
+│
+└── Automatic Suggestions (optional enhancement):
+    ├── Tasks due today or overdue: Suggest marking as urgent
+    ├── Tasks with habit type: Suggest marking as important
+    └── User can accept/reject suggestions
+```
+
+**Quadrant Descriptions:**
+- **Quadrant 1 (Urgent & Important)**: Critical tasks requiring immediate attention. Crises, deadlines, problems.
+- **Quadrant 2 (Not Urgent & Important)**: Strategic tasks for long-term success. Planning, relationship building, learning.
+- **Quadrant 3 (Urgent & Not Important)**: Tasks that demand attention but don't contribute to priorities. Interruptions, some calls/emails.
+- **Quadrant 4 (Not Urgent & Not Important)**: Time-wasters and distractions. Trivial tasks, busy work.
+
+#### Kanban Board View
+
+**Column-Based Task Flow Display:**
+```
+Kanban Board View
+├── Board Columns (horizontal scroll on mobile)
+│   ├── Column 1: Ready
+│   │   ├── Header: "Ready" + count badge
+│   │   ├── Shows: Tasks where status = 'ready'
+│   │   ├── Visual: Default/neutral styling
+│   │   └── Sorted: By due date, then created date
+│   │
+│   ├── Column 2: In Progress
+│   │   ├── Header: "In Progress" + count badge
+│   │   ├── Shows: Tasks where status = 'in_progress'
+│   │   ├── Visual: Blue accent, active indicator
+│   │   └── Sorted: By started_at (most recent first)
+│   │
+│   ├── Column 3: Blocked
+│   │   ├── Header: "Blocked" + count badge
+│   │   ├── Shows: Tasks where status = 'blocked'
+│   │   ├── Visual: Orange/red accent, warning indicator
+│   │   ├── Displays blocked_reason in card
+│   │   └── Sorted: By updated date
+│   │
+│   └── Column 4: Completed
+│       ├── Header: "Completed" + count badge (last 7 days)
+│       ├── Shows: Tasks completed in last 7 days
+│       ├── Visual: Green checkmark, muted/faded
+│       ├── Sorted: By completion date (most recent first)
+│       └── "Show all completed" button to expand
+│
+├── Task Cards in Columns
+│   ├── Vertical stacking within column
+│   ├── Card design: Compact with essential info
+│   ├── Shows: Title, tags (max 2), due date indicator
+│   ├── Parent tasks show subtask count badge
+│   ├── Habits show streak indicator
+│   └── Timer tasks show play button
+│
+├── Drag and Drop
+│   ├── Drag task between columns to change status
+│   ├── Dropping in "Blocked" prompts for blocked reason
+│   ├── Dropping in "Completed" triggers completion flow
+│   ├── Visual feedback: Column highlights on drag over
+│   └── Optimistic update with revert on error
+│
+├── Column Limits (optional, configurable)
+│   ├── WIP (Work In Progress) limit for "In Progress" column
+│   ├── Visual warning when limit exceeded
+│   ├── Default: No limit (can be enabled in settings)
+│   └── Purpose: Encourages focus, prevents overload
+│
+├── Filtering & Grouping
+│   ├── Filter by tag (shows only matching tasks)
+│   ├── Filter by due date range
+│   ├── Group by parent task (shows subtasks nested)
+│   └── Show/hide archived tasks toggle
+│
+└── View Controls
+    ├── Compact/Comfortable card density toggle
+    ├── Column visibility settings (hide/show columns)
+    ├── Sort order within columns (configurable)
+    └── Board settings (WIP limits, completed task retention)
+```
+
+**Kanban Interactions:**
+```
+Desktop Interactions:
+├── Drag and drop between columns
+├── Click card to open detail modal
+├── Right-click for context menu
+├── Double-click to mark in progress (if in Ready)
+└── Hover shows full card details (tooltip)
+
+Mobile Interactions:
+├── Horizontal swipe to navigate between columns
+├── Long press on card to drag
+├── Tap card to open detail modal
+├── Swipe card left/right to quick change status
+└── Pull down to refresh board
+```
+
+**Status Transition Validations:**
+```
+On Drag to Column:
+├── Ready → In Progress: Valid, sets started_at timestamp
+├── Ready → Blocked: Valid, prompts for blocked_reason
+├── Ready → Completed: Valid, triggers completion flow
+├── In Progress → Ready: Valid, clears started_at
+├── In Progress → Blocked: Valid, prompts for blocked_reason
+├── In Progress → Completed: Valid, triggers completion flow
+├── Blocked → Ready: Valid, clears blocked_reason
+├── Blocked → In Progress: Valid, clears blocked_reason, sets started_at
+├── Blocked → Completed: Valid, triggers completion flow
+└── Completed → Any: Invalid, must "reopen" task first (separate action)
+```
+
+**Board Customization (Future Enhancement):**
+- Multiple custom boards with saved filters
+- Custom column definitions beyond status
+- Swimlanes for grouping (by tag, by parent, by priority)
+- Board templates for different workflows
+- Per-board WIP limits and policies
+
+### 5.10 Saved Views
+
+**Purpose:**
+Allow users to create, save, and quickly access custom filtered views of their tasks with their preferred display mode and filter criteria.
+
+**Saved View Properties:**
+```
+Saved View
+├── Name: User-defined name (e.g., "Work Tasks", "High Priority", "This Week")
+├── Icon: Optional emoji or icon for visual identification
+├── View Mode: 'list' | 'kanban' | 'eisenhower' | 'today'
+├── Filters: JSON object containing filter criteria
+│   ├── tags: array of tag IDs (any task with these tags)
+│   ├── status: array of statuses (ready, in_progress, blocked, completed)
+│   ├── type: array of task types (task, habit, parent)
+│   ├── is_urgent: boolean | null
+│   ├── is_important: boolean | null
+│   ├── has_due_date: boolean | null
+│   ├── due_date_range: {start: date, end: date} | null
+│   ├── parent_id: UUID | null (show only subtasks of specific parent)
+│   └── search_text: string | null (filter by title/description)
+├── Sort Order: {field: string, direction: 'asc' | 'desc'}
+├── Display Options: View-specific settings
+│   ├── For Kanban: {wipLimit: number, showCompleted: boolean}
+│   ├── For List: {groupBy: string, showSubtasks: boolean}
+│   └── For Eisenhower: {quadrantLabels: object}
+├── Is Pinned: boolean (show in sidebar/navigation)
+└── Position: integer (order in sidebar)
+```
+
+**Default Saved Views:**
+```
+System provides default views (can be customized but not deleted):
+├── "All Tasks" - List view, no filters
+├── "Today" - Today dashboard view
+├── "Habits" - Habits view with calendar
+├── "Work" - Tasks tagged with "Work" (if tag exists)
+├── "Personal" - Tasks tagged with "Personal" (if tag exists)
+└── "This Week" - Tasks due within next 7 days
+```
+
+**Creating a Saved View:**
+```
+User Flow:
+├── User applies filters in any view (All Tasks, Kanban, etc.)
+├── User clicks "Save View" button
+├── Modal opens with:
+│   ├── View Name input (required)
+│   ├── Icon picker (optional)
+│   ├── Current filters displayed (editable)
+│   ├── Pin to sidebar checkbox
+│   └── Save button
+├── View is saved to database
+└── View appears in sidebar (if pinned) or "More Views" menu
+```
+
+**Accessing Saved Views:**
+```
+Navigation Options:
+├── Sidebar (Desktop):
+│   ├── Default views always visible
+│   ├── Pinned custom views below defaults
+│   ├── "More Views" expandable section for unpinned views
+│   └── "+ New View" action at bottom
+│
+├── Bottom Navigation (Mobile):
+│   ├── Core views (Today, Kanban, Matrix, etc.)
+│   └── "Views" icon → Opens view selector modal
+│
+└── Quick Switcher (Desktop):
+    ├── Keyboard shortcut: Cmd/Ctrl + K
+    ├── Fuzzy search through saved views
+    └── Quick switch between views
+```
+
+**Editing Saved Views:**
+```
+User Actions:
+├── Right-click saved view in sidebar → "Edit View"
+├── Or: Open view → Click "Edit View" in header
+├── Modal opens with all settings editable
+├── Changes save immediately
+└── Can rename, change icon, modify filters, adjust display options
+```
+
+**Managing Saved Views:**
+```
+View Management Interface:
+├── Access via Settings → "Manage Views"
+├── List of all saved views
+├── Actions per view:
+│   ├── Edit (opens edit modal)
+│   ├── Duplicate (creates copy with "Copy of X" name)
+│   ├── Pin/Unpin (toggle sidebar visibility)
+│   ├── Reorder (drag to change position)
+│   └── Delete (confirmation required, can't delete defaults)
+├── Drag to reorder views
+└── Bulk actions: Pin multiple, delete multiple
+```
+
+**Smart View Suggestions:**
+```
+Automatic Suggestions (optional enhancement):
+├── After user repeatedly applies same filter combination:
+│   └── "Save this filter as a view?" prompt appears
+│
+├── Based on tag usage patterns:
+│   └── Suggest creating views for frequently used tags
+│
+└── Based on time patterns:
+    └── Suggest creating "Morning Routine" if user always filters for specific tasks in AM
+```
+
+**Filter Criteria Details:**
+
+**Tag Filters:**
+- Multi-select: Show tasks with ANY of selected tags (OR logic)
+- Exclude mode: Show tasks WITHOUT selected tags
+- Hierarchical: Can filter by parent tag (includes all child tags)
+
+**Status Filters:**
+- Multi-select: Show tasks in any of selected statuses
+- Quick toggles: Active only, Completed only, All
+
+**Date Filters:**
+- Preset ranges: Today, This Week, This Month, Overdue
+- Custom range: Pick start and end dates
+- Relative dates: Next 3 days, Next 7 days, Next 30 days
+
+**Priority Filters (Eisenhower):**
+- Urgent only
+- Important only
+- Urgent & Important (Quadrant 1)
+- Specific quadrant filter
+
+**Advanced Filters:**
+- Has timer: boolean
+- Has subtasks: boolean
+- Is subtask: boolean
+- Completion count: >, <, = specific number
+- Created within: last X days
+- Not updated in: X days (stale tasks)
+
+**Examples of Useful Saved Views:**
+```
+Example Views:
+├── "Deep Work" - Important but not urgent tasks, Eisenhower view
+├── "Quick Wins" - Tasks with timer < 15 min, List view
+├── "Blocked Items" - Status = blocked, List view grouped by blocked reason
+├── "Habit Tracker" - Type = habit, Calendar view
+├── "Team Meetings" - Tagged "Meetings" + "Work", List view
+├── "Weekend Chores" - Tagged "Home", no due date, List view
+├── "Overdue Crisis" - Overdue + Urgent, List view sorted by due date
+└── "Personal Growth" - Tagged "Learning" OR "Health", Kanban view
+```
+
+**Data Sync & Sharing (Future Enhancement):**
+- Views sync across devices via Supabase
+- Export view configuration as JSON
+- Import shared view configurations
+- Community view templates (optional)
 
 #### Standard Task Completion
 ```
@@ -590,7 +936,11 @@ Task {
   streak_safe_until: timestamp (nullable)
   target_frequency: JSON (nullable)
     // Structure: {count: number, period: 'day'|'week'|'month'}
-  
+
+  // Eisenhower Matrix classification
+  is_urgent: boolean (default false)
+  is_important: boolean (default false)
+
   // Metadata
   created_at: timestamp
   updated_at: timestamp
@@ -693,6 +1043,51 @@ User {
 Relationships:
 - User has_many Tasks
 - User has_many Tags
+- User has_many SavedViews
+```
+
+#### SavedView Entity
+```
+SavedView {
+  id: UUID
+  user_id: UUID (foreign key to User)
+  name: string (required, max 50 chars)
+  icon: string (nullable, emoji or icon identifier)
+  view_mode: enum ['list', 'kanban', 'eisenhower', 'today', 'habits']
+  filters: JSON (required)
+    // Structure: {
+    //   tags: UUID[],
+    //   status: string[],
+    //   type: string[],
+    //   is_urgent: boolean | null,
+    //   is_important: boolean | null,
+    //   has_due_date: boolean | null,
+    //   due_date_range: {start: timestamp, end: timestamp} | null,
+    //   parent_id: UUID | null,
+    //   search_text: string | null,
+    //   has_timer: boolean | null,
+    //   has_subtasks: boolean | null,
+    //   is_subtask: boolean | null,
+    //   completion_count_filter: {operator: '>' | '<' | '=', value: number} | null,
+    //   created_within_days: number | null,
+    //   not_updated_in_days: number | null
+    // }
+  sort_order: JSON (required)
+    // Structure: {field: string, direction: 'asc' | 'desc'}
+  display_options: JSON (nullable)
+    // Structure varies by view_mode:
+    // Kanban: {wipLimit: number | null, showCompleted: boolean}
+    // List: {groupBy: string | null, showSubtasks: boolean}
+    // Eisenhower: {quadrantLabels: {q1: string, q2: string, q3: string, q4: string}}
+  is_pinned: boolean (default true)
+  is_default: boolean (default false, system views only)
+  position: integer (for ordering in sidebar, default 0)
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+Relationships:
+- SavedView belongs_to User
 ```
 
 ### 6.2 Data Relationships Diagram
@@ -704,8 +1099,9 @@ User
 │   ├── TaskTags → Tags (many:many)
 │   ├── Recurrence (1:1, optional)
 │   └── Completions (1:many)
-└── Tags (1:many)
-    └── Parent/Child Tags (self-referential)
+├── Tags (1:many)
+│   └── Parent/Child Tags (self-referential)
+└── SavedViews (1:many)
 ```
 
 ### 6.3 Key Queries & Computed Values
@@ -875,6 +1271,10 @@ Actions:
 │   ├── Mark as In Progress
 │   ├── Mark as Blocked → Opens dialog for blocked reason
 │   └── Mark as Complete
+├── Priority Actions:
+│   ├── Mark as Urgent
+│   ├── Mark as Important
+│   └── Clear Priority (removes urgent/important flags)
 ├── Move to Tomorrow
 ├── Move Forward X Days → Opens dialog
 ├── Remove Due Date
@@ -954,25 +1354,166 @@ Celebration Moments:
 └── New longest streak: Extra special celebration
 ```
 
+#### Saved View Component
+
+**Sidebar View List Item:**
+```
+Visual Elements:
+├── Icon (emoji or icon, optional)
+├── Name (truncated if long)
+├── Count Badge (number of tasks in view, optional)
+├── Active State (highlighted if current view)
+└── Drag Handle (for reordering)
+
+Interactions:
+├── Click: Switch to this view
+├── Right-click: Context menu (Edit, Duplicate, Delete, Pin/Unpin)
+├── Drag: Reorder in sidebar
+└── Hover: Show full name tooltip if truncated
+
+States:
+├── Default
+├── Active (currently viewing)
+├── Hover
+└── Dragging
+```
+
+**View Creation/Edit Modal:**
+```
+Layout:
+├── Header: "Create View" or "Edit View"
+├── Body:
+│   ├── Name Input (required)
+│   ├── Icon Picker (emoji selector)
+│   ├── View Mode Selector (List | Kanban | Eisenhower | Today)
+│   ├── Filters Section (collapsible accordion)
+│   │   ├── Tags (multi-select with hierarchy)
+│   │   ├── Status (multi-select checkboxes)
+│   │   ├── Type (task, habit, parent)
+│   │   ├── Priority (urgent/important toggles)
+│   │   ├── Date Range (preset or custom)
+│   │   ├── Advanced (has timer, has subtasks, etc.)
+│   │   └── Active filter count indicator
+│   ├── Sort Order Section
+│   │   ├── Sort by dropdown (due date, created, updated, title)
+│   │   └── Direction toggle (asc/desc)
+│   ├── Display Options Section (varies by view mode)
+│   │   └── View-specific settings
+│   └── Pin to Sidebar (checkbox)
+├── Footer:
+│   ├── Preview button (shows filtered tasks count)
+│   ├── Cancel
+│   └── Save View (primary button)
+└── Delete button (if editing, destructive styling)
+```
+
+**Quick View Switcher (Cmd/Ctrl+K):**
+```
+Modal Overlay:
+├── Search Input (fuzzy search view names)
+├── Results List
+│   ├── Pinned Views section
+│   ├── All Views section
+│   └── Each item shows: Icon, Name, Task count
+├── Keyboard Navigation
+│   ├── Up/Down arrows to navigate
+│   ├── Enter to select
+│   └── Esc to close
+└── Recent Views (last 5 accessed)
+```
+
+**Filter Bar Component:**
+```
+Persistent Filter Bar (top of all views):
+├── Active Filters Display
+│   ├── Shows applied filter chips
+│   ├── Each chip: "Tag: Work" with X to remove
+│   └── "Clear All" button if multiple filters
+├── Add Filter Dropdown
+│   ├── Quick filters (Today, This Week, Overdue)
+│   ├── Filter by Tag
+│   ├── Filter by Status
+│   ├── Filter by Priority
+│   └── Advanced Filters submenu
+├── Save View Button (if filters applied)
+│   └── Quick save current filter combination
+└── View Options Dropdown
+    ├── Group by...
+    ├── Sort by...
+    └── Display density
+```
+
 ### 7.3 Page Layouts
 
-#### Today Dashboard Layout
-```
-Desktop (1200px+):
-├── Header: Title "Today" + Date + Quick Add Button
-├── Main Content (single column, max-width 800px, centered)
-│   ├── Overdue Section (if any)
-│   ├── Habits Section
-│   ├── Tasks Section
-│   └── Suggested Tasks Section
-└── Sidebar (optional): Week calendar preview, stats summary
+#### Application Layout with Saved Views
 
-Mobile (<768px):
-├── Header: Compact title + Quick Add
+**Desktop (1200px+):**
+```
+Overall Layout:
+├── Sidebar (Left, 240-280px)
+│   ├── App Logo/Title
+│   ├── Quick Add Button
+│   ├── Default Views Section
+│   │   ├── Today (icon + name)
+│   │   ├── All Tasks
+│   │   ├── Habits
+│   │   ├── Kanban Board
+│   │   └── Priority Matrix
+│   ├── Divider
+│   ├── Pinned Views Section
+│   │   ├── "My Views" header
+│   │   ├── Pinned view 1 (draggable)
+│   │   ├── Pinned view 2 (draggable)
+│   │   └── ... (sorted by position)
+│   ├── More Views (collapsible)
+│   │   └── Unpinned views list
+│   ├── "+ New View" button
+│   ├── Divider
+│   └── Settings (bottom)
+│
+├── Main Content Area
+│   ├── Filter Bar (if applicable)
+│   │   ├── Active filters display
+│   │   ├── Add filter dropdown
+│   │   └── Save view button
+│   ├── View Header
+│   │   ├── View name + icon
+│   │   ├── View actions (Edit, Duplicate, Delete)
+│   │   └── View mode toggle (if not locked)
+│   └── Content (varies by view type)
+│       ├── Today Dashboard
+│       ├── List View
+│       ├── Kanban Board
+│       ├── Eisenhower Matrix
+│       └── Habits View
+│
+└── Keyboard Shortcut Overlay (Cmd/Ctrl+K)
+    └── Quick view switcher modal
+```
+
+**Mobile (<768px):**
+```
+Layout:
+├── Top Bar
+│   ├── Menu icon (opens drawer with views)
+│   ├── Current view name
+│   └── Quick Add button
+│
 ├── Main Content (full width)
-│   ├── Sections stack vertically
-│   └── Cards full-width with padding
-└── Bottom Navigation: Dashboard | All Tasks | Habits | Settings
+│   ├── Filter bar (if active filters)
+│   └── View content
+│
+├── Navigation Drawer (slide from left)
+│   ├── Default views list
+│   ├── My Views section
+│   ├── "+ New View" button
+│   └── Settings
+│
+└── Bottom Navigation (optional)
+    ├── Today
+    ├── Views (opens view selector)
+    ├── Quick Add
+    └── Settings
 ```
 
 #### All Tasks Layout
@@ -1010,13 +1551,74 @@ Mobile:
 └── Swipe between tabs gesture
 ```
 
+#### Eisenhower Matrix Layout
+```
+Desktop (1200px+):
+├── Header: Title "Priority Matrix" + View Controls
+│   ├── Filter dropdown (All | Active | Overdue)
+│   └── Settings icon (customize labels)
+├── Main Content: 2x2 Grid (equal quadrants)
+│   ├── Grid spacing: 16px gap between quadrants
+│   ├── Each quadrant: Rounded corners, distinct background color
+│   ├── Quadrant header: Label + task count + color accent
+│   └── Task cards: Vertical stack, scrollable if overflow
+├── Unclassified Section (below matrix, collapsible)
+│   └── Horizontal list of unclassified tasks
+└── Drag overlay: Visual feedback during drag operations
+
+Mobile (<768px):
+├── Header: Title "Priority Matrix" + Filter icon
+├── Tab Navigation: Q1 | Q2 | Q3 | Q4 | Unclassified
+├── Content: Current quadrant tasks (full width)
+│   └── Swipe left/right to switch quadrants
+└── Floating Action Button: Quick classify (bottom-right)
+```
+
+#### Kanban Board Layout
+```
+Desktop (1200px+):
+├── Header: Title "Kanban Board" + Controls
+│   ├── View controls: Compact/Comfortable toggle
+│   ├── Filter icon: Opens filter sidebar
+│   └── Settings: Column visibility, WIP limits
+├── Main Content: Horizontal columns (4+ visible)
+│   ├── Column width: 280-320px fixed
+│   ├── Horizontal scroll if more columns than fit
+│   ├── Each column: Header + task list
+│   │   ├── Header: Fixed at top during scroll
+│   │   ├── Task cards: Vertical stack
+│   │   └── Column footer: "Add task" button
+│   └── Visual: Columns separated by subtle borders
+├── Filter Sidebar (optional, toggleable)
+│   ├── Tag filters (multi-select)
+│   ├── Date range picker
+│   └── Group by options
+└── Drag indicators: Column highlights, drop zones
+
+Mobile (<768px):
+├── Header: Title "Board" + Filter icon
+├── Column Tabs: Ready | In Progress | Blocked | Done
+│   └── Horizontal scroll for all columns
+├── Content: Single column view (swipe to switch)
+│   ├── Column header with count badge
+│   └── Task cards (full width)
+├── Bottom Sheet: Swipe up for filters
+└── Card Actions: Swipe gesture for status change
+```
+
 #### Task Detail Modal
 ```
 Layout (Overlay, centered):
 ├── Header: Close button + Task title (editable)
 ├── Body (scrollable):
 │   ├── Description field (expandable textarea)
+│   ├── Status Selector (Ready | In Progress | Blocked | Completed)
+│   │   └── If Blocked: Show blocked_reason textarea
 │   ├── Due Date Picker
+│   ├── Priority Section (Eisenhower Matrix)
+│   │   ├── Urgent checkbox with helper text
+│   │   ├── Important checkbox with helper text
+│   │   └── Shows current quadrant based on selections
 │   ├── Tag Selector (multi-select with hierarchy)
 │   ├── Timer Duration Input (if applicable)
 │   ├── Parent Task Selector (if subtask)
@@ -1140,9 +1742,13 @@ User Preferences (stored in users table):
 │   ├── quiet_hours_end: string (HH:MM)
 │   └── grace_reminder_interval: number (1, 3, or 6 hours)
 └── Display Preferences:
-    ├── default_view: 'dashboard' | 'all_tasks' | 'habits'
+    ├── default_view: 'today' | 'all_tasks' | 'habits' | 'eisenhower' | 'kanban'
     ├── show_completed_tasks: boolean
-    └── compact_view: boolean
+    ├── compact_view: boolean
+    ├── eisenhower_quadrant_labels: JSON (nullable)
+    │   // Structure: {q1: string, q2: string, q3: string, q4: string}
+    │   // Default: {q1: "Do First", q2: "Schedule", q3: "Delegate", q4: "Delete"}
+    └── kanban_wip_limit: integer (nullable, default: null for no limit)
 ```
 
 ## 9. Notifications System
@@ -1230,9 +1836,19 @@ Notification Preferences:
 - React 18+ with TypeScript
 - Vite for build tooling and dev server
 - Zustand for state management
-- Framer Motion for animations
-- TailwindCSS for styling
-- React Hook Form for form handling
+- **Ant Design (antd)** for UI components and design system
+  - Enterprise-grade component library with 90k+ GitHub stars
+  - Built-in TypeScript support with predictable static types
+  - CSS-in-JS for dynamic theming and performance
+  - Comprehensive component set (50+ components)
+  - Built-in dark mode support via ConfigProvider
+  - Internationalization support for dozens of languages
+- **@dnd-kit** for drag and drop functionality
+  - Modern, lightweight alternative to react-beautiful-dnd
+  - Integrates seamlessly with Ant Design components
+  - Used for Kanban board and Eisenhower Matrix drag interactions
+- Framer Motion for custom animations and transitions
+- TailwindCSS for utility classes (supplementary to Ant Design)
 - date-fns for date manipulation
 - React Router for navigation
 
@@ -1254,7 +1870,186 @@ Notification Preferences:
 - Shared component library where possible
 - React Native Reanimated for animations
 
-### 10.2 State Management Architecture
+### 10.2 Ant Design Component Mapping
+
+**Component Implementation Plan:**
+
+This section maps DoTheThing's UI components to Ant Design components for implementation guidance.
+
+**Layout & Navigation:**
+```
+Application Structure:
+├── Layout (Ant Design Layout component)
+│   ├── Layout.Sider - Sidebar navigation with saved views
+│   ├── Layout.Header - Top bar (mobile)
+│   └── Layout.Content - Main content area
+├── Menu - Sidebar navigation items for views
+├── Drawer - Mobile navigation drawer
+├── Breadcrumb - Navigation breadcrumbs (optional)
+└── Dropdown - Context menus and filter dropdowns
+```
+
+**Data Entry & Forms:**
+```
+Task Creation/Editing:
+├── Form - Form wrapper with validation
+├── Input - Task title, search fields
+├── Input.TextArea - Task description, blocked reason
+├── DatePicker - Due date selection
+│   └── DatePicker.RangePicker - Date range filters
+├── TimePicker - Timer duration input
+├── Select - Tag selection, view mode selector
+│   └── Select.Multiple - Multi-select for tags, filters
+├── Checkbox - Urgent/important flags, filter options
+├── Switch - Toggle settings (dark mode, pin view)
+├── Slider - Timer duration, WIP limits
+└── TreeSelect - Hierarchical tag selection
+```
+
+**Data Display:**
+```
+Task & View Display:
+├── Card - Task cards, habit cards, stat cards
+├── List - Task lists in various views
+│   └── List.Item - Individual task items
+├── Table - Advanced task list view (optional)
+├── Tag - Tag chips, filter chips
+├── Badge - Count badges for views, unread counts
+├── Avatar - User avatar, task icons
+├── Statistic - Habit stats, streak counts
+├── Calendar - Habit heatmap visualization
+├── Timeline - Task history, completion timeline
+├── Collapse - Collapsible sections (parent tasks, filters)
+├── Tree - Hierarchical tag navigation
+└── Empty - Empty states for views
+```
+
+**Feedback & Interaction:**
+```
+User Feedback:
+├── Modal - Task detail modal, view creation modal
+│   └── Modal.confirm - Delete confirmations
+├── Drawer - Filter panel, settings panel
+├── Message - Toast notifications (task completed, etc.)
+├── Notification - System notifications (habit reminders)
+├── Popover - Quick info tooltips, help text
+├── Popconfirm - Quick confirmations (delete, archive)
+├── Progress - Parent task progress, timer countdown
+│   ├── Progress.Line - Linear progress bars
+│   └── Progress.Circle - Circular timer display
+├── Spin - Loading states
+├── Skeleton - Loading placeholders
+└── Alert - Important messages, warnings
+```
+
+**Navigation & Controls:**
+```
+View Controls:
+├── Tabs - View mode tabs (mobile), habit view tabs
+├── Pagination - Task list pagination (if needed)
+├── Button - All action buttons
+│   ├── Button.Primary - Save, create actions
+│   ├── Button.Default - Cancel, secondary actions
+│   ├── Button.Text - Icon-only actions
+│   └── Button.Link - Link-style actions
+├── FloatButton - Quick add button (floating action button)
+├── Segmented - View mode switcher, filter toggles
+└── Radio - Single-choice options in forms
+```
+
+**Advanced Features:**
+```
+Special Components:
+├── ConfigProvider - Theme configuration, dark mode
+│   └── theme.algorithm - Dark/light/compact algorithms
+├── App - Global static methods (message, notification)
+├── Grid (Row/Col) - Responsive layouts
+├── Space - Spacing between elements
+└── Divider - Section separators
+```
+
+**Drag and Drop Integration:**
+```
+Drag & Drop (@dnd-kit + Ant Design):
+├── Kanban Board:
+│   ├── DndContext - Drag context provider
+│   ├── SortableContext - Sortable columns
+│   ├── useSortable - Draggable task cards
+│   └── Ant Design Card - Task card component
+│
+├── Eisenhower Matrix:
+│   ├── DragOverlay - Visual feedback during drag
+│   ├── useDroppable - Quadrant drop zones
+│   ├── useDraggable - Task cards in quadrants
+│   └── Ant Design Card - Task card component
+│
+└── Sidebar View Reordering:
+    ├── SortableContext - View list
+    ├── useSortable - Individual view items
+    └── Ant Design Menu.Item - View list items
+```
+
+**Form Handling:**
+```
+Form Management:
+├── Ant Design Form (built-in)
+│   ├── Form.useForm - Form instance hook
+│   ├── Form.Item - Form field wrapper with validation
+│   ├── Form.List - Dynamic form fields (subtasks)
+│   └── Validation rules - Built-in validation
+│
+└── Alternative: React Hook Form (if needed for complex cases)
+    └── Note: Ant Design Form is typically sufficient
+```
+
+**Theming & Customization:**
+```
+Theme Configuration:
+├── ConfigProvider setup:
+│   ├── token - Design tokens (colors, spacing, etc.)
+│   │   ├── colorPrimary - Brand color
+│   │   ├── borderRadius - Corner rounding
+│   │   └── fontSize - Base font size
+│   ├── algorithm - Theme algorithm
+│   │   ├── theme.defaultAlgorithm - Light mode
+│   │   ├── theme.darkAlgorithm - Dark mode
+│   │   └── theme.compactAlgorithm - Compact mode
+│   └── components - Per-component customization
+│
+└── Custom Styles:
+    ├── CSS-in-JS (Ant Design's styled API)
+    ├── TailwindCSS classes (utility)
+    └── Custom CSS modules (if needed)
+```
+
+**Icons:**
+```
+Icon Library:
+├── @ant-design/icons - Official icon library
+│   ├── Outlined icons (default)
+│   ├── Filled icons
+│   └── Two-tone icons
+├── Custom icons/emojis for tags and views
+└── react-icons (optional, for additional icons)
+```
+
+**Key Ant Design Features to Leverage:**
+
+1. **Built-in Dark Mode**: Use ConfigProvider with theme.darkAlgorithm
+2. **Form Validation**: Ant Design Form has built-in async validation
+3. **Responsive Grid**: Use Row/Col with responsive breakpoints
+4. **Accessibility**: All Ant Design components follow WAI-ARIA standards
+5. **Internationalization**: ConfigProvider locale support for future i18n
+6. **Performance**: CSS-in-JS ensures only used styles are loaded
+
+**Installation Requirements:**
+```bash
+npm install antd @ant-design/icons
+npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
+npm install framer-motion date-fns zustand react-router-dom
+```
+
+### 10.3 State Management Architecture
 
 ```
 Zustand Store Structure:
@@ -1288,17 +2083,39 @@ TagStore:
     ├── updateTag(id: string, updates: Partial<Tag>)
     └── deleteTag(id: string)
 
+SavedViewStore:
+├── State:
+│   ├── views: SavedView[]
+│   ├── activeViewId: string | null (currently displayed view)
+│   ├── loading: boolean
+│   └── error: string | null
+│
+└── Actions:
+    ├── fetchViews()
+    ├── createView(view: Partial<SavedView>)
+    ├── updateView(id: string, updates: Partial<SavedView>)
+    ├── deleteView(id: string)
+    ├── duplicateView(id: string)
+    ├── setActiveView(id: string)
+    ├── reorderViews(viewIds: string[])
+    ├── pinView(id: string, isPinned: boolean)
+    └── initializeDefaultViews() (creates system defaults on first use)
+
 UIStore (app-level UI state):
 ├── State:
 │   ├── theme: 'light' | 'dark' | 'system'
 │   ├── selectedTask: string | null (for detail modal)
 │   ├── showCompletedTasks: boolean
-│   └── sidebarCollapsed: boolean
+│   ├── sidebarCollapsed: boolean
+│   ├── currentView: 'today' | 'all_tasks' | 'habits' | 'eisenhower' | 'kanban'
+│   └── kanbanSettings: { wipLimit: number | null, showCompleted: boolean }
 │
 └── Actions:
     ├── toggleTheme()
     ├── selectTask(id: string | null)
-    └── toggleSidebar()
+    ├── toggleSidebar()
+    ├── setView(view: ViewType)
+    └── updateKanbanSettings(settings: KanbanSettings)
 
 AuthStore:
 ├── State:
@@ -1320,7 +2137,22 @@ Selectors (computed values, memoized):
 ├── getTasksByTag(tagId: string): Task[]
 ├── getSubtasks(parentId: string): Task[]
 ├── getTaskProgress(parentId: string): ProgressData
-└── getHabitStats(): HabitStatistics
+├── getHabitStats(): HabitStatistics
+├── getEisenhowerQuadrant(quadrant: 1|2|3|4): Task[]
+│   ├── Quadrant 1: is_urgent=true, is_important=true
+│   ├── Quadrant 2: is_urgent=false, is_important=true
+│   ├── Quadrant 3: is_urgent=true, is_important=false
+│   └── Quadrant 4: is_urgent=false, is_important=false
+├── getUnclassifiedTasks(): Task[]
+│   └── Tasks where is_urgent or is_important are null/default
+├── getKanbanColumn(status: TaskStatus): Task[]
+│   └── Returns tasks filtered by status for kanban columns
+├── getTasksForView(viewId: string): Task[]
+│   └── Applies all filters from saved view to return matching tasks
+├── getPinnedViews(): SavedView[]
+│   └── Returns views where is_pinned = true, sorted by position
+└── getDefaultViews(): SavedView[]
+    └── Returns views where is_default = true
 ```
 
 ### 10.3 Data Flow
@@ -1513,6 +2345,10 @@ On Subtask Completion:
 - ✅ Someday tasks appear on dashboard after threshold
 - ✅ Pomodoro timer counts down and completes successfully
 - ✅ Today dashboard shows relevant tasks in correct priority order
+- ✅ Saved views can be created with custom filters and view modes
+- ✅ Filters work correctly for all task attributes (tags, status, priority, dates)
+- ✅ View switcher (Cmd/Ctrl+K) allows quick navigation between views
+- ✅ Pinned views appear in sidebar and can be reordered
 
 ### 12.2 User Experience
 - ✅ App feels delightful to use daily
@@ -1551,12 +2387,15 @@ On Subtask Completion:
 - Task attachments (files, images)
 - Task comments/notes over time
 - Collaboration (shared tasks with others)
+- Shared saved views between users
 - Calendar view (month/week view of tasks)
 - Natural language input ("Remind me to call mom next Tuesday")
 - Task templates for repeated complex projects
-- Advanced filtering (boolean logic, saved filters)
-- Keyboard shortcuts for power users
-- Drag and drop task reordering
+- Boolean logic in filters (AND/OR combinations)
+- Smart view suggestions based on usage patterns
+- Community view templates (import/export)
+- Keyboard shortcuts for power users (beyond Cmd+K)
+- Drag and drop task reordering within lists
 - Task dependencies ("Task B can't start until Task A is done")
 - Time tracking (total time spent on task)
 - Integrations (Google Calendar, email, etc.)
@@ -1578,8 +2417,10 @@ On Subtask Completion:
 
 **Technology Choices:**
 - Frontend: React + TypeScript + Vite
+- UI Components: Ant Design (enterprise-grade component library)
+- Drag & Drop: @dnd-kit (modern, lightweight DnD library)
 - State: Zustand
-- Styling: TailwindCSS + Framer Motion
+- Styling: Ant Design theming + TailwindCSS utilities + Framer Motion
 - Backend: Supabase (Auth + Database + Realtime + Edge Functions)
 - Authentication: Email/password (primary)
 
@@ -1631,6 +2472,12 @@ On Subtask Completion:
 - Pomodoro-style timers
 - Quick reschedule (tomorrow, X days)
 - Today dashboard with smart filtering
+- Eisenhower Matrix for priority-based task organization
+- Kanban Board for visual workflow management
+- Saved Views with custom filters and view modes
+- Advanced filtering by any task attribute
+- Quick view switcher (Cmd/Ctrl+K)
+- Drag and drop for quick task updates
 - Notifications for due tasks and grace periods
 
 **Visual Design:**
@@ -1679,6 +2526,12 @@ On Subtask Completion:
 - Pomodoro timer integration
 - Notification system (all types)
 - Edge Functions for scheduled jobs
+- Eisenhower Matrix view implementation
+- Kanban Board view implementation
+- Saved Views system (create, edit, delete, pin)
+- Advanced filtering UI for all views
+- Drag and drop functionality for views and tasks
+- Quick view switcher (Cmd/Ctrl+K)
 - Dark mode implementation
 - Mobile responsive design
 - Accessibility audit and fixes
