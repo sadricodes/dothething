@@ -1836,9 +1836,19 @@ Notification Preferences:
 - React 18+ with TypeScript
 - Vite for build tooling and dev server
 - Zustand for state management
-- Framer Motion for animations
-- TailwindCSS for styling
-- React Hook Form for form handling
+- **Ant Design (antd)** for UI components and design system
+  - Enterprise-grade component library with 90k+ GitHub stars
+  - Built-in TypeScript support with predictable static types
+  - CSS-in-JS for dynamic theming and performance
+  - Comprehensive component set (50+ components)
+  - Built-in dark mode support via ConfigProvider
+  - Internationalization support for dozens of languages
+- **@dnd-kit** for drag and drop functionality
+  - Modern, lightweight alternative to react-beautiful-dnd
+  - Integrates seamlessly with Ant Design components
+  - Used for Kanban board and Eisenhower Matrix drag interactions
+- Framer Motion for custom animations and transitions
+- TailwindCSS for utility classes (supplementary to Ant Design)
 - date-fns for date manipulation
 - React Router for navigation
 
@@ -1860,7 +1870,186 @@ Notification Preferences:
 - Shared component library where possible
 - React Native Reanimated for animations
 
-### 10.2 State Management Architecture
+### 10.2 Ant Design Component Mapping
+
+**Component Implementation Plan:**
+
+This section maps DoTheThing's UI components to Ant Design components for implementation guidance.
+
+**Layout & Navigation:**
+```
+Application Structure:
+├── Layout (Ant Design Layout component)
+│   ├── Layout.Sider - Sidebar navigation with saved views
+│   ├── Layout.Header - Top bar (mobile)
+│   └── Layout.Content - Main content area
+├── Menu - Sidebar navigation items for views
+├── Drawer - Mobile navigation drawer
+├── Breadcrumb - Navigation breadcrumbs (optional)
+└── Dropdown - Context menus and filter dropdowns
+```
+
+**Data Entry & Forms:**
+```
+Task Creation/Editing:
+├── Form - Form wrapper with validation
+├── Input - Task title, search fields
+├── Input.TextArea - Task description, blocked reason
+├── DatePicker - Due date selection
+│   └── DatePicker.RangePicker - Date range filters
+├── TimePicker - Timer duration input
+├── Select - Tag selection, view mode selector
+│   └── Select.Multiple - Multi-select for tags, filters
+├── Checkbox - Urgent/important flags, filter options
+├── Switch - Toggle settings (dark mode, pin view)
+├── Slider - Timer duration, WIP limits
+└── TreeSelect - Hierarchical tag selection
+```
+
+**Data Display:**
+```
+Task & View Display:
+├── Card - Task cards, habit cards, stat cards
+├── List - Task lists in various views
+│   └── List.Item - Individual task items
+├── Table - Advanced task list view (optional)
+├── Tag - Tag chips, filter chips
+├── Badge - Count badges for views, unread counts
+├── Avatar - User avatar, task icons
+├── Statistic - Habit stats, streak counts
+├── Calendar - Habit heatmap visualization
+├── Timeline - Task history, completion timeline
+├── Collapse - Collapsible sections (parent tasks, filters)
+├── Tree - Hierarchical tag navigation
+└── Empty - Empty states for views
+```
+
+**Feedback & Interaction:**
+```
+User Feedback:
+├── Modal - Task detail modal, view creation modal
+│   └── Modal.confirm - Delete confirmations
+├── Drawer - Filter panel, settings panel
+├── Message - Toast notifications (task completed, etc.)
+├── Notification - System notifications (habit reminders)
+├── Popover - Quick info tooltips, help text
+├── Popconfirm - Quick confirmations (delete, archive)
+├── Progress - Parent task progress, timer countdown
+│   ├── Progress.Line - Linear progress bars
+│   └── Progress.Circle - Circular timer display
+├── Spin - Loading states
+├── Skeleton - Loading placeholders
+└── Alert - Important messages, warnings
+```
+
+**Navigation & Controls:**
+```
+View Controls:
+├── Tabs - View mode tabs (mobile), habit view tabs
+├── Pagination - Task list pagination (if needed)
+├── Button - All action buttons
+│   ├── Button.Primary - Save, create actions
+│   ├── Button.Default - Cancel, secondary actions
+│   ├── Button.Text - Icon-only actions
+│   └── Button.Link - Link-style actions
+├── FloatButton - Quick add button (floating action button)
+├── Segmented - View mode switcher, filter toggles
+└── Radio - Single-choice options in forms
+```
+
+**Advanced Features:**
+```
+Special Components:
+├── ConfigProvider - Theme configuration, dark mode
+│   └── theme.algorithm - Dark/light/compact algorithms
+├── App - Global static methods (message, notification)
+├── Grid (Row/Col) - Responsive layouts
+├── Space - Spacing between elements
+└── Divider - Section separators
+```
+
+**Drag and Drop Integration:**
+```
+Drag & Drop (@dnd-kit + Ant Design):
+├── Kanban Board:
+│   ├── DndContext - Drag context provider
+│   ├── SortableContext - Sortable columns
+│   ├── useSortable - Draggable task cards
+│   └── Ant Design Card - Task card component
+│
+├── Eisenhower Matrix:
+│   ├── DragOverlay - Visual feedback during drag
+│   ├── useDroppable - Quadrant drop zones
+│   ├── useDraggable - Task cards in quadrants
+│   └── Ant Design Card - Task card component
+│
+└── Sidebar View Reordering:
+    ├── SortableContext - View list
+    ├── useSortable - Individual view items
+    └── Ant Design Menu.Item - View list items
+```
+
+**Form Handling:**
+```
+Form Management:
+├── Ant Design Form (built-in)
+│   ├── Form.useForm - Form instance hook
+│   ├── Form.Item - Form field wrapper with validation
+│   ├── Form.List - Dynamic form fields (subtasks)
+│   └── Validation rules - Built-in validation
+│
+└── Alternative: React Hook Form (if needed for complex cases)
+    └── Note: Ant Design Form is typically sufficient
+```
+
+**Theming & Customization:**
+```
+Theme Configuration:
+├── ConfigProvider setup:
+│   ├── token - Design tokens (colors, spacing, etc.)
+│   │   ├── colorPrimary - Brand color
+│   │   ├── borderRadius - Corner rounding
+│   │   └── fontSize - Base font size
+│   ├── algorithm - Theme algorithm
+│   │   ├── theme.defaultAlgorithm - Light mode
+│   │   ├── theme.darkAlgorithm - Dark mode
+│   │   └── theme.compactAlgorithm - Compact mode
+│   └── components - Per-component customization
+│
+└── Custom Styles:
+    ├── CSS-in-JS (Ant Design's styled API)
+    ├── TailwindCSS classes (utility)
+    └── Custom CSS modules (if needed)
+```
+
+**Icons:**
+```
+Icon Library:
+├── @ant-design/icons - Official icon library
+│   ├── Outlined icons (default)
+│   ├── Filled icons
+│   └── Two-tone icons
+├── Custom icons/emojis for tags and views
+└── react-icons (optional, for additional icons)
+```
+
+**Key Ant Design Features to Leverage:**
+
+1. **Built-in Dark Mode**: Use ConfigProvider with theme.darkAlgorithm
+2. **Form Validation**: Ant Design Form has built-in async validation
+3. **Responsive Grid**: Use Row/Col with responsive breakpoints
+4. **Accessibility**: All Ant Design components follow WAI-ARIA standards
+5. **Internationalization**: ConfigProvider locale support for future i18n
+6. **Performance**: CSS-in-JS ensures only used styles are loaded
+
+**Installation Requirements:**
+```bash
+npm install antd @ant-design/icons
+npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
+npm install framer-motion date-fns zustand react-router-dom
+```
+
+### 10.3 State Management Architecture
 
 ```
 Zustand Store Structure:
@@ -2228,8 +2417,10 @@ On Subtask Completion:
 
 **Technology Choices:**
 - Frontend: React + TypeScript + Vite
+- UI Components: Ant Design (enterprise-grade component library)
+- Drag & Drop: @dnd-kit (modern, lightweight DnD library)
 - State: Zustand
-- Styling: TailwindCSS + Framer Motion
+- Styling: Ant Design theming + TailwindCSS utilities + Framer Motion
 - Backend: Supabase (Auth + Database + Realtime + Edge Functions)
 - Authentication: Email/password (primary)
 

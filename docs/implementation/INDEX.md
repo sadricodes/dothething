@@ -6,8 +6,9 @@ This is the master implementation guide for building DoTheThing from the ground 
 
 DoTheThing is a personal task management application with habit tracking, built with:
 - **Frontend**: React 18 + TypeScript + Vite
+- **UI Components**: Ant Design (antd) + @dnd-kit for drag & drop
 - **State Management**: Zustand
-- **Styling**: TailwindCSS + Framer Motion
+- **Styling**: Ant Design theming + TailwindCSS utilities + Framer Motion
 - **Backend**: Supabase (PostgreSQL + Auth + Realtime)
 
 ## Prerequisites
@@ -29,10 +30,12 @@ Set up the project structure, configure Supabase, implement authentication, and 
 
 **Key Deliverables**:
 - Vite + React + TypeScript project scaffolded
+- Ant Design (antd) + @dnd-kit installed and configured
+- ConfigProvider setup for theming (light/dark mode)
 - Supabase project configured with database schema
-- Authentication UI (login/signup/logout)
+- Authentication UI (login/signup/logout) using Ant Design Form components
 - Zustand stores (basic structure)
-- Design system (colors, typography, base components)
+- Ant Design theme customization (brand colors, design tokens)
 
 ---
 
@@ -77,12 +80,16 @@ Implement recurring task logic, habit tracking with streaks, and someday task nu
 Add the Pomodoro timer, notification system, dark mode, and mobile responsive design.
 
 **Key Deliverables**:
-- Pomodoro timer integration
-- Notification system (all types)
+- Pomodoro timer integration using Ant Design Progress components
+- Notification system using Ant Design Message and Notification
 - Supabase Edge Functions for scheduled jobs
-- Dark mode implementation
-- Mobile responsive design
-- Accessibility improvements
+- Eisenhower Matrix view with @dnd-kit drag and drop
+- Kanban Board view with @dnd-kit drag and drop
+- Saved Views system (create, edit, delete, pin)
+- Advanced filtering UI using Ant Design components
+- Dark mode implementation via ConfigProvider
+- Mobile responsive design using Ant Design responsive utilities
+- Accessibility improvements (Ant Design components are WCAG compliant)
 - Performance optimization
 
 ---
