@@ -1,4 +1,5 @@
 import { ConfigProvider, theme } from 'antd'
+import { DatabaseTest } from '@/components/DatabaseTest'
 
 function App() {
   return (
@@ -14,10 +15,10 @@ function App() {
     >
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-8">
-          <h1 className="text-3xl font-bold text-gray-900">DoTheThing</h1>
-          <p className="mt-2 text-gray-600">
-            Vite + React + TypeScript + Tailwind v4 + Ant Design - Setup complete!
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">DoTheThing</h1>
+          <p className="text-gray-600 mb-6">Database setup verification</p>
+
+          <DatabaseTest />
         </div>
       </div>
     </ConfigProvider>
