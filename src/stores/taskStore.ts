@@ -105,7 +105,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
     const { tags = [], ...taskData } = data
 
-    // Create task
+    // Create task - only include fields that exist in current database schema
+    // Note: scheduled_date, estimated_minutes, notes will be added in future migrations
     const { data: newTask, error: taskError } = await supabase
       .from('tasks')
       .insert({
@@ -113,14 +114,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         title: taskData.title,
         description: taskData.description || null,
         status: taskData.status || 'ready',
-        type: taskData.type || 'task',
+        // Map type: DB only supports 'task', 'habit', 'parent' - map others to 'task'
+        type: taskData.type === 'recurring' || taskData.type === 'someday' ? 'task' : taskData.type || 'task',
         due_date: taskData.due_date || null,
-        scheduled_date: taskData.scheduled_date || null,
         is_urgent: taskData.is_urgent || false,
         is_important: taskData.is_important || false,
         parent_id: taskData.parent_id || null,
-        estimated_minutes: taskData.estimated_minutes || null,
-        notes: taskData.notes || null,
       })
       .select()
       .single()
@@ -153,9 +152,9 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   },
 
   updateTask: async (id: string, data: Partial<TaskFormData>) => {
-    const { tags, ...taskData } = data
+    const { tags, scheduled_date, estimated_minutes, notes, ...taskData } = data
 
-    // Update task
+    // Update task - filter out fields that don't exist in current schema
     const { error: taskError } = await supabase
       .from('tasks')
       .update(taskData)
