@@ -121,11 +121,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         parent_id: taskData.parent_id || null,
         estimated_minutes: taskData.estimated_minutes || null,
         notes: taskData.notes || null,
-        completed_at: null,
-        last_nudge_date: null,
-        nudge_count: 0,
-        order_index: 0,
-        actual_minutes: null,
       })
       .select()
       .single()
