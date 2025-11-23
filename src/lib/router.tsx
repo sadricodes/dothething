@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
 import { DashboardPage } from '@/pages/DashboardPage'
+import { TagsPage } from '@/pages/TagsPage'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 export const router = createBrowserRouter([
@@ -22,6 +23,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/tags',
+    element: (
+      <ProtectedRoute>
+        <TagsPage />
       </ProtectedRoute>
     ),
   },

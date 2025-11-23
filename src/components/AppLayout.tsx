@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Layout, Button, Dropdown, Space, Typography, MenuProps } from 'antd'
+import { Layout, Button, Dropdown, Space, Typography, MenuProps, Menu } from 'antd'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -8,8 +8,10 @@ import {
   SunOutlined,
   MoonOutlined,
   DesktopOutlined,
+  DashboardOutlined,
+  TagOutlined,
 } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { useUIStore } from '@/stores/uiStore'
 
@@ -22,6 +24,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, signOut } = useAuthStore()
   const { theme, setTheme, sidebarCollapsed, toggleSidebar } = useUIStore()
 
@@ -75,6 +78,21 @@ export function AppLayout({ children }: AppLayoutProps) {
     },
   ]
 
+  const navMenuItems: MenuProps['items'] = [
+    {
+      key: '/dashboard',
+      label: 'Dashboard',
+      icon: <DashboardOutlined />,
+      onClick: () => navigate('/dashboard'),
+    },
+    {
+      key: '/tags',
+      label: 'Tags',
+      icon: <TagOutlined />,
+      onClick: () => navigate('/tags'),
+    },
+  ]
+
   return (
     <Layout className="min-h-screen">
       {/* Sidebar - Will be enhanced in Phase 2 */}
@@ -92,7 +110,12 @@ export function AppLayout({ children }: AppLayoutProps) {
           </Text>
         </div>
 
-        {/* Navigation will be added in Phase 2 */}
+        <Menu
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          items={navMenuItems}
+          className="border-r-0"
+        />
       </Sider>
 
       <Layout>
