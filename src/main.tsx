@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
-import { ConfigProvider, theme, App as AntApp } from 'antd'
+import { App as AntApp } from 'antd'
+import { ThemeProvider } from './components/ThemeProvider'
 import { router } from './lib/router'
 import { useAuthStore } from './stores/authStore'
 import './index.css'
@@ -19,21 +20,12 @@ function AppInitializer() {
 function Root() {
   return (
     <React.StrictMode>
-      <ConfigProvider
-        theme={{
-          algorithm: theme.defaultAlgorithm,
-          token: {
-            colorPrimary: '#3B82F6',
-            borderRadius: 8,
-            fontSize: 14,
-          },
-        }}
-      >
+      <ThemeProvider>
         <AntApp>
           <AppInitializer />
           <RouterProvider router={router} />
         </AntApp>
-      </ConfigProvider>
+      </ThemeProvider>
     </React.StrictMode>
   )
 }
