@@ -61,7 +61,7 @@ export function TagPicker({
             />
           )
         }}
-        dropdownRender={menu => (
+        popupRender={menu => (
           <>
             {menu}
             {onCreateTag && (

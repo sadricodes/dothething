@@ -131,6 +131,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       .single()
 
     if (taskError) {
+      console.error('Task creation error:', taskError)
       return { data: null, error: new Error(taskError.message) }
     }
 
