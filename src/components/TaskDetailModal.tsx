@@ -14,7 +14,6 @@ import {
   CheckOutlined,
   CloseOutlined,
   CalendarOutlined,
-  ClockCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons'
 import { TaskWithTags } from '@/types/task'
@@ -108,49 +107,24 @@ export function TaskDetailModal({
         )}
 
         {/* Details */}
-        <Descriptions column={2} size="small">
-          {task.due_date && (
-            <Descriptions.Item label="Due Date" span={1}>
-              <Space size="small">
-                <CalendarOutlined />
-                <Text>{format(parseISO(task.due_date), 'MMM d, yyyy')}</Text>
-              </Space>
-            </Descriptions.Item>
-          )}
+        {(task.due_date || task.completed_at) && (
+          <Descriptions column={2} size="small">
+            {task.due_date && (
+              <Descriptions.Item label="Due Date" span={1}>
+                <Space size="small">
+                  <CalendarOutlined />
+                  <Text>{format(parseISO(task.due_date), 'MMM d, yyyy')}</Text>
+                </Space>
+              </Descriptions.Item>
+            )}
 
-          {task.scheduled_date && (
-            <Descriptions.Item label="Scheduled" span={1}>
-              <Space size="small">
-                <CalendarOutlined />
-                <Text>{format(parseISO(task.scheduled_date), 'MMM d, yyyy')}</Text>
-              </Space>
-            </Descriptions.Item>
-          )}
-
-          {task.estimated_minutes && (
-            <Descriptions.Item label="Estimated Time" span={1}>
-              <Space size="small">
-                <ClockCircleOutlined />
-                <Text>{task.estimated_minutes} minutes</Text>
-              </Space>
-            </Descriptions.Item>
-          )}
-
-          {task.actual_minutes && (
-            <Descriptions.Item label="Actual Time" span={1}>
-              <Space size="small">
-                <ClockCircleOutlined />
-                <Text>{task.actual_minutes} minutes</Text>
-              </Space>
-            </Descriptions.Item>
-          )}
-
-          {task.completed_at && (
-            <Descriptions.Item label="Completed At" span={2}>
-              <Text>{format(parseISO(task.completed_at), 'MMM d, yyyy h:mm a')}</Text>
-            </Descriptions.Item>
-          )}
-        </Descriptions>
+            {task.completed_at && (
+              <Descriptions.Item label="Completed At" span={2}>
+                <Text>{format(parseISO(task.completed_at), 'MMM d, yyyy h:mm a')}</Text>
+              </Descriptions.Item>
+            )}
+          </Descriptions>
+        )}
 
         {/* Tags */}
         {task.tags.length > 0 && (
@@ -163,18 +137,6 @@ export function TaskDetailModal({
                   return tag ? <Tag key={tag.id} tag={tag} /> : null
                 })}
               </Space>
-            </div>
-          </div>
-        )}
-
-        {/* Notes */}
-        {task.notes && (
-          <div>
-            <Text strong>Notes</Text>
-            <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded">
-              <Paragraph className="!mb-0 whitespace-pre-wrap text-gray-700">
-                {task.notes}
-              </Paragraph>
             </div>
           </div>
         )}

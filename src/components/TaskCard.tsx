@@ -4,9 +4,7 @@ import {
   MoreOutlined,
   EditOutlined,
   DeleteOutlined,
-  ClockCircleOutlined,
   CalendarOutlined,
-  FileTextOutlined,
   PlusOutlined,
 } from '@ant-design/icons'
 import { TaskWithTags } from '@/types/task'
@@ -157,14 +155,6 @@ export function TaskCard({
               {format(parseISO(task.due_date), 'MMM d')}
             </AntTag>
           )}
-
-          {task.estimated_minutes && (
-            <AntTag icon={<ClockCircleOutlined />}>
-              {task.estimated_minutes}m
-            </AntTag>
-          )}
-
-          {task.notes && <AntTag icon={<FileTextOutlined />}>Notes</AntTag>}
         </Space>
 
         {/* Tags */}

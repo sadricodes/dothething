@@ -5,7 +5,6 @@ import {
   Input,
   Select,
   DatePicker,
-  InputNumber,
   Checkbox,
   Space,
   message,
@@ -64,11 +63,8 @@ export function TaskFormModal({
           status: task.status,
           type: task.type,
           due_date: task.due_date ? dayjs(task.due_date) : null,
-          scheduled_date: task.scheduled_date ? dayjs(task.scheduled_date) : null,
-          estimated_minutes: task.estimated_minutes,
           is_urgent: task.is_urgent,
           is_important: task.is_important,
-          notes: task.notes,
           tags: taskWithTags?.tags || [],
         })
       } else if (parentTask) {
@@ -102,11 +98,8 @@ export function TaskFormModal({
         status: values.status,
         type: values.type,
         due_date: values.due_date ? values.due_date.toISOString() : null,
-        scheduled_date: values.scheduled_date ? values.scheduled_date.toISOString() : null,
-        estimated_minutes: values.estimated_minutes || null,
         is_urgent: values.is_urgent || false,
         is_important: values.is_important || false,
-        notes: values.notes || null,
         tags: values.tags || [],
         parent_id: parentTask?.id || null,
       }
@@ -195,18 +188,8 @@ export function TaskFormModal({
           </Form.Item>
         </Space>
 
-        <Space className="w-full" size="large">
-          <Form.Item label="Due Date" name="due_date" className="flex-1">
-            <DatePicker className="w-full" format="MMM D, YYYY" />
-          </Form.Item>
-
-          <Form.Item label="Scheduled Date" name="scheduled_date" className="flex-1">
-            <DatePicker className="w-full" format="MMM D, YYYY" />
-          </Form.Item>
-        </Space>
-
-        <Form.Item label="Estimated Time (minutes)" name="estimated_minutes">
-          <InputNumber min={1} max={999} className="w-full" placeholder="e.g., 30" />
+        <Form.Item label="Due Date" name="due_date">
+          <DatePicker className="w-full" format="MMM D, YYYY" />
         </Form.Item>
 
         <Divider />
@@ -226,15 +209,6 @@ export function TaskFormModal({
 
         <Form.Item label="Tags" name="tags">
           <TagPicker />
-        </Form.Item>
-
-        <Form.Item label="Notes" name="notes">
-          <TextArea
-            placeholder="Additional notes, links, or context..."
-            rows={3}
-            maxLength={5000}
-            showCount
-          />
         </Form.Item>
       </Form>
     </Modal>
