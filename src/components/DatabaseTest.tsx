@@ -10,7 +10,7 @@ export function DatabaseTest() {
     const testConnection = async () => {
       try {
         // Test connection by attempting to fetch from tags table
-        const { data, error } = await supabase.from('tags').select('id').limit(1)
+        const { error } = await supabase.from('tags').select('id').limit(1)
 
         if (error) {
           throw error
