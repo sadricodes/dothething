@@ -1,23 +1,18 @@
-import { useEffect } from 'react'
-import { Button, Space, Card, List, Typography, message, Spin } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
+import { Button, Space, Typography, message, Spin } from 'antd'
+import { PlusOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import { AppLayout } from '@/components/AppLayout'
+import { TaskList } from '@/components/TaskList'
+import { TaskFormModal } from '@/components/TaskFormModal'
 import { useTaskStore } from '@/stores/taskStore'
 import { TaskFormData } from '@/types/task'
 
 const { Title, Text } = Typography
 
 export function TestTasksPage() {
-  const {
-    tasks,
-    loading,
-    fetchTasks,
-    createTask,
-    deleteTask,
-    completeTask,
-    subscribeToTasks,
-    unsubscribeFromTasks,
-  } = useTaskStore()
+  const { tasks, loading, fetchTasks, createTask, subscribeToTasks, unsubscribeFromTasks } =
+    useTaskStore()
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
   useEffect(() => {
     fetchTasks()
@@ -37,25 +32,7 @@ export function TestTasksPage() {
     if (error) {
       message.error(error.message)
     } else {
-      message.success('Task created!')
-    }
-  }
-
-  const handleComplete = async (id: string) => {
-    const { error } = await completeTask(id)
-    if (error) {
-      message.error(error.message)
-    } else {
-      message.success('Task completed!')
-    }
-  }
-
-  const handleDelete = async (id: string) => {
-    const { error } = await deleteTask(id)
-    if (error) {
-      message.error(error.message)
-    } else {
-      message.success('Task deleted!')
+      message.success('Test task created!')
     }
   }
 
@@ -65,58 +42,42 @@ export function TestTasksPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <Title level={2} className="!mb-1">
-              Task Store Test
+              Task UI Components
             </Title>
-            <Text type="secondary">Testing TaskStore CRUD operations</Text>
+            <Text type="secondary">Testing Task UI with TaskList, TaskCard, and Modals</Text>
           </div>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateTest}>
-            Create Test Task
-          </Button>
+          <Space>
+            <Button icon={<ThunderboltOutlined />} onClick={handleCreateTest}>
+              Quick Test Task
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowCreateModal(true)}
+            >
+              Create Task
+            </Button>
+          </Space>
         </div>
 
-        <Card>
-          {loading && tasks.length === 0 ? (
-            <div className="flex justify-center py-12">
-              <Spin size="large" />
-            </div>
-          ) : (
-            <List
-              dataSource={tasks}
-              renderItem={task => (
-                <List.Item
-                  actions={[
-                    <Button key="complete" size="small" onClick={() => handleComplete(task.id)}>
-                      Complete
-                    </Button>,
-                    <Button
-                      key="delete"
-                      size="small"
-                      danger
-                      onClick={() => handleDelete(task.id)}
-                    >
-                      Delete
-                    </Button>,
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={task.title}
-                    description={
-                      <Space direction="vertical" size="small">
-                        <Text type="secondary">{task.description}</Text>
-                        <Space size="small">
-                          <Text type="secondary">Status: {task.status}</Text>
-                          <Text type="secondary">Type: {task.type}</Text>
-                          <Text type="secondary">Tags: {task.tags.length}</Text>
-                        </Space>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          )}
-        </Card>
+        {loading && tasks.length === 0 ? (
+          <div className="flex justify-center py-12">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <TaskList tasks={tasks} emptyMessage="No tasks yet. Create one to get started!" />
+        )}
       </div>
+
+      <TaskFormModal
+        open={showCreateModal}
+        task={null}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          setShowCreateModal(false)
+          message.success('Task created!')
+        }}
+      />
     </AppLayout>
   )
 }
