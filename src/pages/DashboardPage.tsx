@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Tabs, Input, Typography, Spin } from 'antd'
-import { PlusOutlined, InboxOutlined, CalendarOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import {
+  PlusOutlined,
+  InboxOutlined,
+  CalendarOutlined,
+  ThunderboltOutlined,
+} from '@ant-design/icons'
+import { useSearchParams } from 'react-router-dom'
 import { AppLayout } from '@/components/AppLayout'
 import { TaskList } from '@/components/TaskList'
 import { useTaskStore } from '@/stores/taskStore'
@@ -12,11 +18,25 @@ const { Title } = Typography
 type ViewType = 'today' | 'week' | 'inbox'
 
 export function DashboardPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const { tasks, loading, fetchTasks, createTask, subscribeToTasks, unsubscribeFromTasks } =
     useTaskStore()
-  const [activeView, setActiveView] = useState<ViewType>('today')
+
+  // Get view from URL query param, default to 'today'
+  const viewParam = searchParams.get('view') as ViewType | null
+  const [activeView, setActiveView] = useState<ViewType>(
+    viewParam && ['today', 'week', 'inbox'].includes(viewParam) ? viewParam : 'today'
+  )
   const [quickAddValue, setQuickAddValue] = useState('')
   const [quickAddLoading, setQuickAddLoading] = useState(false)
+
+  // Update activeView when URL changes
+  useEffect(() => {
+    const view = searchParams.get('view') as ViewType | null
+    if (view && ['today', 'week', 'inbox'].includes(view)) {
+      setActiveView(view)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     fetchTasks()
@@ -129,7 +149,11 @@ export function DashboardPage() {
           <Tabs
             activeKey={activeView}
             items={tabItems}
-            onChange={key => setActiveView(key as ViewType)}
+            onChange={key => {
+              const view = key as ViewType
+              setActiveView(view)
+              setSearchParams({ view })
+            }}
           />
         </div>
 

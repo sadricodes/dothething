@@ -110,7 +110,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </span>
       ),
       icon: <DashboardOutlined />,
-      onClick: () => navigate('/dashboard'),
+      onClick: () => navigate('/dashboard?view=inbox'),
       children: [
         {
           key: 'today',
@@ -123,7 +123,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </span>
           ),
           icon: <CalendarOutlined />,
-          onClick: () => navigate('/dashboard'),
+          onClick: () => navigate('/dashboard?view=today'),
         },
         {
           key: 'week',
@@ -136,7 +136,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </span>
           ),
           icon: <ThunderboltOutlined />,
-          onClick: () => navigate('/dashboard'),
+          onClick: () => navigate('/dashboard?view=week'),
         },
         {
           key: 'inbox',
@@ -149,7 +149,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </span>
           ),
           icon: <InboxOutlined />,
-          onClick: () => navigate('/dashboard'),
+          onClick: () => navigate('/dashboard?view=inbox'),
         },
       ],
     },
@@ -189,7 +189,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       <Layout>
         {/* Header */}
-        <Header className="bg-white border-b px-6 flex items-center justify-between">
+        <Header className="border-b px-6 flex items-center justify-between">
           <Button
             type="text"
             icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
