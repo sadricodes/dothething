@@ -174,6 +174,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         onCollapse={toggleSidebar}
         width={240}
         className="border-r"
+        trigger={null}
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
         <div className="h-16 flex items-center justify-center px-4 border-b">
           <Text strong className="text-lg">
@@ -191,7 +193,20 @@ export function AppLayout({ children }: AppLayoutProps) {
           defaultOpenKeys={['/dashboard']}
           items={navMenuItems}
           className="border-r-0"
+          style={{ flex: 1, borderRight: 0 }}
         />
+
+        {/* Collapse Button */}
+        <div className="border-t p-3">
+          <Button
+            type="text"
+            icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={toggleSidebar}
+            block
+          >
+            {!sidebarCollapsed && 'Collapse'}
+          </Button>
+        </div>
       </Sider>
 
       <Layout>

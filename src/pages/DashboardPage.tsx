@@ -127,9 +127,10 @@ export function DashboardPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <Title level={2} className="!mb-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8">
+          <Title level={2} className="!mb-2">
             Tasks
           </Title>
 
@@ -142,20 +143,21 @@ export function DashboardPage() {
             onChange={e => setQuickAddValue(e.target.value)}
             onKeyPress={handleQuickAddKeyPress}
             disabled={quickAddLoading}
-            className="mb-4"
-          />
-
-          {/* View Tabs */}
-          <Tabs
-            activeKey={activeView}
-            items={tabItems}
-            onChange={key => {
-              const view = key as ViewType
-              setActiveView(view)
-              setSearchParams({ view })
-            }}
+            className="mt-4"
           />
         </div>
+
+        {/* View Tabs */}
+        <Tabs
+          activeKey={activeView}
+          items={tabItems}
+          onChange={key => {
+            const view = key as ViewType
+            setActiveView(view)
+            setSearchParams({ view })
+          }}
+          className="mb-6"
+        />
 
         {/* Task List */}
         {loading && tasks.length === 0 ? (

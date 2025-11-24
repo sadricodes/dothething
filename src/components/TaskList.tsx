@@ -97,7 +97,7 @@ export function TaskList({
 
   return (
     <>
-      <Space direction="vertical" className="w-full" size="middle">
+      <Space direction="vertical" className="w-full" size="large">
         {tasks.map(task => (
           <TaskCard
             key={task.id}
