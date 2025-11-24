@@ -3,13 +3,12 @@ import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { TagsPage } from '@/pages/TagsPage'
-import { TestTasksPage } from '@/pages/TestTasksPage'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/dashboard?view=today" replace />,
   },
   {
     path: '/login',
@@ -32,14 +31,6 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <TagsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/test-tasks',
-    element: (
-      <ProtectedRoute>
-        <TestTasksPage />
       </ProtectedRoute>
     ),
   },

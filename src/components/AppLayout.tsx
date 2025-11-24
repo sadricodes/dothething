@@ -1,5 +1,5 @@
-import { ReactNode } from 'react'
-import { Layout, Button, Dropdown, Space, Typography, MenuProps, Menu } from 'antd'
+import { ReactNode, useEffect } from 'react'
+import { Layout, Button, Dropdown, Space, Typography, MenuProps, Menu, Badge } from 'antd'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -10,10 +10,15 @@ import {
   DesktopOutlined,
   DashboardOutlined,
   TagOutlined,
+  CalendarOutlined,
+  ThunderboltOutlined,
+  InboxOutlined,
 } from '@ant-design/icons'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { useUIStore } from '@/stores/uiStore'
+import { useTaskStore } from '@/stores/taskStore'
+import { isTaskDueToday, isTaskDueThisWeek } from '@/lib/task-utils'
 
 const { Header, Content, Sider } = Layout
 const { Text } = Typography
@@ -27,6 +32,21 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation()
   const { user, signOut } = useAuthStore()
   const { theme, setTheme, sidebarCollapsed, toggleSidebar } = useUIStore()
+  const { tasks, fetchTasks } = useTaskStore()
+
+  useEffect(() => {
+    fetchTasks()
+  }, [fetchTasks])
+
+  // Calculate task counts
+  const activeTasks = tasks.filter(task => task.status !== 'archived')
+  const todayTasks = activeTasks.filter(
+    task =>
+      isTaskDueToday(task) ||
+      (task.due_date && new Date(task.due_date) < new Date() && !isTaskDueToday(task))
+  )
+  const weekTasks = activeTasks.filter(task => isTaskDueThisWeek(task))
+  const inboxCount = activeTasks.length
 
   const handleSignOut = async () => {
     await signOut()
@@ -81,9 +101,57 @@ export function AppLayout({ children }: AppLayoutProps) {
   const navMenuItems: MenuProps['items'] = [
     {
       key: '/dashboard',
-      label: 'Dashboard',
+      label: (
+        <span className="flex items-center justify-between w-full">
+          <span>Dashboard</span>
+          {inboxCount > 0 && !sidebarCollapsed && (
+            <Badge count={inboxCount} showZero={false} overflowCount={99} />
+          )}
+        </span>
+      ),
       icon: <DashboardOutlined />,
-      onClick: () => navigate('/dashboard'),
+      onClick: () => navigate('/dashboard?view=inbox'),
+      children: [
+        {
+          key: 'today',
+          label: (
+            <span className="flex items-center justify-between w-full">
+              <span>Today</span>
+              {todayTasks.length > 0 && (
+                <Badge count={todayTasks.length} showZero={false} overflowCount={99} />
+              )}
+            </span>
+          ),
+          icon: <CalendarOutlined />,
+          onClick: () => navigate('/dashboard?view=today'),
+        },
+        {
+          key: 'week',
+          label: (
+            <span className="flex items-center justify-between w-full">
+              <span>This Week</span>
+              {weekTasks.length > 0 && (
+                <Badge count={weekTasks.length} showZero={false} overflowCount={99} />
+              )}
+            </span>
+          ),
+          icon: <ThunderboltOutlined />,
+          onClick: () => navigate('/dashboard?view=week'),
+        },
+        {
+          key: 'inbox',
+          label: (
+            <span className="flex items-center justify-between w-full">
+              <span>Inbox</span>
+              {inboxCount > 0 && (
+                <Badge count={inboxCount} showZero={false} overflowCount={99} />
+              )}
+            </span>
+          ),
+          icon: <InboxOutlined />,
+          onClick: () => navigate('/dashboard?view=inbox'),
+        },
+      ],
     },
     {
       key: '/tags',
@@ -95,7 +163,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <Layout className="min-h-screen">
-      {/* Sidebar - Will be enhanced in Phase 2 */}
+      {/* Sidebar */}
       <Sider
         theme="light"
         collapsible
@@ -104,15 +172,16 @@ export function AppLayout({ children }: AppLayoutProps) {
         width={240}
         className="border-r"
       >
-        <div className="h-16 flex items-center justify-center px-4">
+        <div className="h-16 flex items-center justify-center px-4 border-b">
           <Text strong className="text-lg">
-            {sidebarCollapsed ? 'DT' : 'DoTheThing'}
+            {sidebarCollapsed ? '✓' : 'DoTheThing'}
           </Text>
         </div>
 
         <Menu
           mode="inline"
           selectedKeys={[location.pathname]}
+          defaultOpenKeys={['/dashboard']}
           items={navMenuItems}
           className="border-r-0"
         />
@@ -120,7 +189,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       <Layout>
         {/* Header */}
-        <Header className="bg-white border-b px-6 flex items-center justify-between">
+        <Header className="border-b px-6 flex items-center justify-between">
           <Button
             type="text"
             icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
