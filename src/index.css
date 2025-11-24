@@ -1,0 +1,23 @@
+/* Tailwind v4 CSS imports */
+@import 'tailwindcss';
+
+/* Tailwind v4 configuration */
+@theme {
+  /* Disable preflight to avoid conflicts with Ant Design */
+  --preflight: false;
+}
+
+/* Custom global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+}
