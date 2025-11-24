@@ -1,66 +1,155 @@
-import { Typography, Space, Card, Alert } from 'antd'
-import { CheckCircleOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
+import { Tabs, Input, Typography, Spin } from 'antd'
+import { PlusOutlined, InboxOutlined, CalendarOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import { AppLayout } from '@/components/AppLayout'
-import { useAuthStore } from '@/stores/authStore'
+import { TaskList } from '@/components/TaskList'
+import { useTaskStore } from '@/stores/taskStore'
+import { TaskFormData, TaskWithTags } from '@/types/task'
+import { isTaskDueToday, isTaskDueThisWeek } from '@/lib/task-utils'
 
-const { Title, Text, Paragraph } = Typography
+const { Title } = Typography
+
+type ViewType = 'today' | 'week' | 'inbox'
 
 export function DashboardPage() {
-  const { user } = useAuthStore()
+  const { tasks, loading, fetchTasks, createTask, subscribeToTasks, unsubscribeFromTasks } =
+    useTaskStore()
+  const [activeView, setActiveView] = useState<ViewType>('today')
+  const [quickAddValue, setQuickAddValue] = useState('')
+  const [quickAddLoading, setQuickAddLoading] = useState(false)
+
+  useEffect(() => {
+    fetchTasks()
+    subscribeToTasks()
+    return () => unsubscribeFromTasks()
+  }, [fetchTasks, subscribeToTasks, unsubscribeFromTasks])
+
+  const handleQuickAdd = async () => {
+    if (!quickAddValue.trim()) return
+
+    setQuickAddLoading(true)
+    const taskData: TaskFormData = {
+      title: quickAddValue.trim(),
+      status: 'ready',
+      type: 'task',
+    }
+
+    const { error } = await createTask(taskData)
+    if (!error) {
+      setQuickAddValue('')
+    }
+    setQuickAddLoading(false)
+  }
+
+  const handleQuickAddKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleQuickAdd()
+    }
+  }
+
+  // Filter tasks based on active view
+  const getFilteredTasks = (): TaskWithTags[] => {
+    // Exclude archived tasks from all views
+    const activeTasks = tasks.filter(task => task.status !== 'archived')
+
+    switch (activeView) {
+      case 'today':
+        // Tasks due today or overdue
+        return activeTasks.filter(
+          task => isTaskDueToday(task) || (task.due_date && new Date(task.due_date) < new Date() && !isTaskDueToday(task))
+        )
+
+      case 'week':
+        // Tasks due this week
+        return activeTasks.filter(task => isTaskDueThisWeek(task))
+
+      case 'inbox':
+      default:
+        // All non-archived tasks
+        return activeTasks
+    }
+  }
+
+  const filteredTasks = getFilteredTasks()
+
+  const tabItems = [
+    {
+      key: 'today',
+      label: (
+        <span>
+          <CalendarOutlined />
+          Today
+        </span>
+      ),
+      children: null,
+    },
+    {
+      key: 'week',
+      label: (
+        <span>
+          <ThunderboltOutlined />
+          This Week
+        </span>
+      ),
+      children: null,
+    },
+    {
+      key: 'inbox',
+      label: (
+        <span>
+          <InboxOutlined />
+          Inbox
+        </span>
+      ),
+      children: null,
+    },
+  ]
 
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
-        <Space direction="vertical" size="large" className="w-full">
-          <div>
-            <Title level={2}>Welcome to DoTheThing! 👋</Title>
-            <Text type="secondary">Logged in as {user?.email}</Text>
-          </div>
+        <div className="mb-6">
+          <Title level={2} className="!mb-4">
+            Tasks
+          </Title>
 
-          <Alert
-            message="Phase 1 Complete!"
-            description="Authentication and design system are set up. Task management features will be added in Phase 2."
-            type="success"
-            showIcon
-            icon={<CheckCircleOutlined />}
+          {/* Quick Add Input */}
+          <Input
+            size="large"
+            placeholder="Quick add task... (press Enter)"
+            prefix={<PlusOutlined />}
+            value={quickAddValue}
+            onChange={e => setQuickAddValue(e.target.value)}
+            onKeyPress={handleQuickAddKeyPress}
+            disabled={quickAddLoading}
+            className="mb-4"
           />
 
-          <Card title="What's Next?">
-            <Space direction="vertical" size="middle" className="w-full">
-              <div>
-                <Text strong>Phase 2: Core Task Management</Text>
-                <Paragraph type="secondary" className="!mb-0 !mt-1">
-                  • Create and manage tasks
-                  <br />
-                  • Organize with tags
-                  <br />
-                  • Parent/child task relationships
-                  <br />• Today dashboard
-                </Paragraph>
-              </div>
+          {/* View Tabs */}
+          <Tabs
+            activeKey={activeView}
+            items={tabItems}
+            onChange={key => setActiveView(key as ViewType)}
+          />
+        </div>
 
-              <div>
-                <Text strong>Phase 3: Advanced Features</Text>
-                <Paragraph type="secondary" className="!mb-0 !mt-1">
-                  • Recurring tasks
-                  <br />
-                  • Habit tracking with streaks
-                  <br />• Someday tasks
-                </Paragraph>
-              </div>
-            </Space>
-          </Card>
-
-          <Card title="Current Features" className="bg-blue-50 border-blue-200">
-            <Space direction="vertical" size="small">
-              <Text>✅ User authentication (sign up, login, logout)</Text>
-              <Text>✅ Protected routes</Text>
-              <Text>✅ Dark/Light mode toggle</Text>
-              <Text>✅ Responsive layout</Text>
-              <Text>✅ Ant Design theming</Text>
-            </Space>
-          </Card>
-        </Space>
+        {/* Task List */}
+        {loading && tasks.length === 0 ? (
+          <div className="flex justify-center py-12">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <TaskList
+            tasks={filteredTasks}
+            emptyMessage={
+              activeView === 'today'
+                ? 'No tasks due today'
+                : activeView === 'week'
+                ? 'No tasks due this week'
+                : 'No tasks in inbox'
+            }
+          />
+        )}
       </div>
     </AppLayout>
   )

@@ -1,5 +1,5 @@
 import { Task, TaskStatus, TaskType } from '@/types/task'
-import { isToday, isPast, parseISO } from 'date-fns'
+import { isToday, isPast, parseISO, isThisWeek } from 'date-fns'
 
 export function isTaskOverdue(task: Task): boolean {
   if (!task.due_date || task.status === 'completed' || task.status === 'archived') {
@@ -16,6 +16,11 @@ export function isTaskScheduledToday(task: Task): boolean {
 export function isTaskDueToday(task: Task): boolean {
   if (!task.due_date) return false
   return isToday(parseISO(task.due_date))
+}
+
+export function isTaskDueThisWeek(task: Task): boolean {
+  if (!task.due_date) return false
+  return isThisWeek(parseISO(task.due_date), { weekStartsOn: 0 }) // Week starts on Sunday
 }
 
 export function getTaskPriorityQuadrant(task: Task): 1 | 2 | 3 | 4 | null {
