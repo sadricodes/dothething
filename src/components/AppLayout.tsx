@@ -38,6 +38,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     fetchTasks()
   }, [fetchTasks])
 
+  // Get current view from URL query params
+  const searchParams = new URLSearchParams(location.search)
+  const currentView = searchParams.get('view') || 'today'
+
   // Calculate task counts
   const activeTasks = tasks.filter(task => task.status !== 'archived')
   const todayTasks = activeTasks.filter(
@@ -110,7 +114,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         </span>
       ),
       icon: <DashboardOutlined />,
-      onClick: () => navigate('/dashboard?view=inbox'),
       children: [
         {
           key: 'today',
@@ -180,7 +183,11 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         <Menu
           mode="inline"
-          selectedKeys={[location.pathname]}
+          selectedKeys={
+            location.pathname === '/dashboard'
+              ? [currentView] // Select the submenu item (today/week/inbox)
+              : [location.pathname] // Select other top-level items like /tags
+          }
           defaultOpenKeys={['/dashboard']}
           items={navMenuItems}
           className="border-r-0"
